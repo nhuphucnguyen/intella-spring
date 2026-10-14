@@ -29,6 +29,10 @@
         <completion.contributor language="XML"
                                 implementationClass="dev.phucngu.intellaspring.xml.SpringXmlCompletionContributor"/>
         <internalFileTemplate name="spring-beans.xml"/>
+        <localInspection implementationClass="dev.phucngu.intellaspring.inspection.SpringAutowiringInspection"
+                         language="JAVA" shortName="SpringAutowiringInspection" suppressId="SpringAutowiringInspection"
+                         displayName="Spring autowiring problems" groupPath="Java" groupName="Spring"
+                         enabledByDefault="true" level="ERROR"/>
     </extensions>
 
     <actions>

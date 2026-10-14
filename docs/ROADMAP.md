@@ -81,7 +81,16 @@ S4+: `p:`/`c:` value completion, factory-bean/method typing, parent-bean inherit
   template list; own wording).
 - Namespace registry EP so later milestones (tx/mvc/sec) plug in uniformly.
 
-## S4 — Autowiring analysis (flagship inspection)
+## S4 — Autowiring analysis (flagship inspection) — ✅ shipped
+
+Delivered: `SpringAutowiringInspection` (Java, group Java→Spring, error level) checks every
+injection point — @Autowired fields/setters/constructors and @Bean factory parameters — against
+the model. No candidate → "No qualifying bean of type 'X' found" with a Set-@Autowired(required
+= false) quick-fix; several non-primary candidates → "More than one bean of type 'X': a, b, c"
+with an Add-@Qualifier("<name>") quick-fix per candidate. @Primary and @Qualifier (matching the
+bean's qualifiers or its name — Spring's fallback) narrow candidates; `required = false` opts
+out; collections/maps/Optionals are skipped as many-bean injections. Deferred: @Value
+placeholder analysis (needs the properties index from S6), generics-aware matching.
 - Injection point model: `@Autowired` field/setter/constructor + `@Qualifier` +
   `@Resource`/`@Inject` aliases; required-ness; `@Value` separately.
 - Candidate resolution: by type (raw types first, generics-aware later), qualifiers,

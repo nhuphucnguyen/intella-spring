@@ -19,3 +19,6 @@
 - **S3 XML support**: bean-name references (red when unresolved, completion with origins)
   across ref/`<ref>`/`p:*-ref`, soft class navigation, property-name completion from bean
   setters, spring-beans.xml file template.
+- **S4 autowiring analysis**: Spring autowiring inspection — unresolved injection errors with
+  a required=false quick-fix, ambiguity errors with per-candidate @Qualifier quick-fixes;
+  @Primary/@Qualifier narrowing; @Bean factory parameters included.

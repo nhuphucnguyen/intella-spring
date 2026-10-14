@@ -14,7 +14,7 @@ Legend: ✅ shipped · 🔨 milestone assigned · ❌ not planned in v1.
 | **XML config** | DOM completion, refs, p:/c:, custom namespaces | ✅ refs+completion (p:-ref; p:/c: values, custom namespaces → later) | S3 |
 | XML↔Java bean navigation | ✅ | ✅ (XML ref → Java bean, class attr ⇄ Java, gutter both sides) | S3 |
 | XML live/file templates | 9 template sets | 🔨 subset, own wording | S3 |
-| **Autowiring analysis** | unresolved/ambiguous/qualifier quick-fixes | 🔨 raw-type + qualifiers first | S4 |
+| **Autowiring analysis** | unresolved/ambiguous/qualifier quick-fixes | ✅ raw-type + qualifiers + @Primary (generics, @Value → later) | S4 |
 | `${placeholder}` references | ✅ | 🔨 | S4 |
 | SpEL `#{…}` references | dedicated module | 🔨 later (S9.4) | S9 |
 | Profiles (active per context) | ✅ + switcher action | 🔨 model-level ✅, switcher S10 | S1/S10 |
