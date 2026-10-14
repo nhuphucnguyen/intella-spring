@@ -52,6 +52,9 @@
         <toolWindow id="Spring Endpoints" anchor="bottom" icon="/icons/springBean.svg"
                     factoryClass="dev.phucngu.intellaspring.endpoints.EndpointsToolWindowFactory"
                     canCloseContents="false"/>
+        <toolWindow id="Spring Beans" anchor="bottom" icon="/icons/springBean.svg"
+                    factoryClass="dev.phucngu.intellaspring.beans.BeansToolWindowFactory"
+                    canCloseContents="false"/>
     </extensions>
 
     <actions>

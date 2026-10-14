@@ -30,7 +30,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 
 /**
  * The flagship: checks every injection point — {@code @Autowired} fields/setters/constructors
@@ -40,9 +39,6 @@ import java.util.Set;
  * Collections, maps and Optionals inject many beans and are skipped, as are unresolvable types.
  */
 public class SpringAutowiringInspection extends LocalInspectionTool {
-
-    private static final Set<String> MANY_BEAN_TYPES = Set.of(
-            "java.util.Collection", "java.util.List", "java.util.Set", "java.util.Map", "java.util.Optional");
 
     @Override
     public @NotNull PsiElementVisitor buildVisitor(@NotNull ProblemsHolder holder, boolean isOnTheFly) {
@@ -80,17 +76,13 @@ public class SpringAutowiringInspection extends LocalInspectionTool {
         }
         PsiClass injected = classType.resolve();
         if (injected == null || injected.getQualifiedName() == null
-                || MANY_BEAN_TYPES.contains(injected.getQualifiedName())) {
+                || dev.phucngu.intellaspring.spring.SpringBeanMatching.MANY_BEAN_TYPES.contains(injected.getQualifiedName())) {
             return;
         }
         String fqn = injected.getQualifiedName();
-        List<SpringBeanDef> byType = SpringContextService.getInstance(holder.getProject()).allBeans().stream()
-                .filter(bean -> fqn.equals(bean.beanTypeName()))
-                .toList();
         String qualifier = AnnotationValues.stringValue(member.getAnnotation(SpringAnnotations.QUALIFIER), "value");
-        List<SpringBeanDef> candidates = byType.stream()
-                .filter(bean -> matchesQualifier(bean, qualifier))
-                .toList();
+        List<SpringBeanDef> candidates = dev.phucngu.intellaspring.spring.SpringBeanMatching.candidates(
+                classType, qualifier, SpringContextService.getInstance(holder.getProject()).allBeans());
         if (candidates.isEmpty()) {
             if (isRequired(member)) {
                 holder.registerProblem(toMark,
@@ -114,12 +106,6 @@ public class SpringAutowiringInspection extends LocalInspectionTool {
                     "More than one bean of type '" + fqn + "': " + names,
                     fixes);
         }
-    }
-
-    private static boolean matchesQualifier(@NotNull SpringBeanDef bean, String qualifier) {
-        // Spring's fallback: an explicit @Qualifier matches the bean's qualifiers or its name.
-        return qualifier == null || bean.qualifiers().contains(qualifier)
-                || qualifier.equals(bean.displayName());
     }
 
     /** @Autowired defaults to required; explicit required = false opts the member out of errors. */

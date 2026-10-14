@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.0 — Unreleased
+### Added
+- **S8 Spring Beans tool window** ("Spring Beans", bottom): the whole bean model as a
+  module → bean tree (leaf/xml icons, type tails, speed search). Selecting a bean shows its
+  details (origin, stereotype, type, primary/lazy/profiles) plus live dependency edges —
+  "Depends on" and "Injected into" — computed with the same injection rule set as the
+  autowiring inspection (implicit constructors, Lombok, @Inject/@Resource, @Bean factory
+  parameters); every edge double-clicks to the bean's declaration.
+- Shared `SpringBeanMatching` (candidate resolution) now backs the inspection, the beans
+  view and the choosers — one rule set, mirroring IDEA's SpringAutowireUtil.
 ## 0.2.0 — Unreleased
 ### Added
 - **S7.2 Endpoints tool window** ("Spring Endpoints", bottom): every request mapping in the

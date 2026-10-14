@@ -27,8 +27,8 @@ Legend: ✅ shipped · 🔨 milestone assigned · ❌ not planned in v1.
 | @ConfigurationProperties key gen + navigation | ✅ | 🔨 | S6 |
 | **MVC** | endpoints provider, mapping gutter, view resolvers | ✅ model + endpoints tool window (tree, copy-as-cURL, navigation); mapping gutter → S10 | S7 |
 | Ambiguous mapping inspection | ✅ | ✅ (flags both handlers) | S7 |
-| **Beans view** | Services-view integration (gated framework) | 🔨 own tool window | S8 |
-| Beans diagram | platform diagrams | 🔨 | S8 |
+| **Beans view** | Services-view integration (gated framework) | ✅ own tool window + dependency edges (diagram canvas → later) | S8 |
+| Beans diagram | platform diagrams | ✅ dependency lists in the Beans view (graph canvas → later) | S8 |
 | **Initializr wizard** | ✅ | 🔨 start.spring.io client | S9.1 |
 | Spring Data derived queries | ✅ (ORM EPs) | 🔨 own parser | S9.2 |
 | Security SpEL checks | ✅ | 🔨 | S9.3 |

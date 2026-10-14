@@ -166,11 +166,15 @@ gutter icon (→ S10), view-template resolution assist.
   open-in-HTTP-client for GET (no gated client APIs).
 - view-template resolution assist (templates/ dir aware) — later half.
 
-## S8 — Beans view & dependency graph
-- "Spring Beans" tool window (our own panel, like intella-db's explorer): tree by
-  module → package → class; filters (stereotype, profile, scope); search-as-you-type.
-- Bean dependency graph: platform DiagramProvider over our model
-  (bean → injected dependencies, XML + Java edges); subset of IDEA's diagram actions.
+## S8 — Beans view & dependency graph — ✅ shipped
+Delivered: the **Spring Beans tool window** — module → bean tree (name + type tail, leaf/xml
+icons, speed search, debounced auto-refresh) with a details pane for the selected bean:
+origin/stereotype/scope/primary/lazy/profiles plus **dependency edges** in both directions
+("Depends on" / "Injected into"), each row "bean via Owner.site", double-click navigates to
+the bean declaration. Edges use the shared `SpringBeanMatching` rule set (implicit
+constructors, Lombok fields, @Inject/@Resource, @Bean factory parameters — factory-method
+beans depend on what the factory injects). Deferred: XML `<property ref>` edges, graph
+canvas (platform DiagramProvider), stereotype/profile filters.
 
 ## S9 — Ecosystem breadth (pick by value, each optional)
 - **Initializr wizard** (S9.1): new-project/module builder against start.spring.io
