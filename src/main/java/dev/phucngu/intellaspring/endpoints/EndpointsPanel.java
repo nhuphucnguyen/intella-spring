@@ -53,7 +53,7 @@ import java.util.Map;
  * {@link dev.phucngu.intellaspring.mvc.RequestMappingModel}. Rows are rebuilt on PSI changes (debounced, only while
  * visible) so the renderer only ever reads precomputed strings.
  */
-final class EndpointsPanel extends SimpleToolWindowPanel {
+public final class EndpointsPanel extends SimpleToolWindowPanel {
     static final String TOOL_WINDOW_ID = "Spring Endpoints";
 
     private static final Map<Project, EndpointsPanel> ACTIVE = new HashMap<>();
@@ -144,19 +144,30 @@ final class EndpointsPanel extends SimpleToolWindowPanel {
     }
 
     /** Activates the tool window and selects the tree row for the given handler (gutter entry point). */
-    static void revealEndpoint(@NotNull Project project, @NotNull PsiMethod handler) {
-        EndpointsPanel panel;
-        synchronized (ACTIVE) {
-            panel = ACTIVE.get(project);
-        }
-        if (panel == null) {
+    public static void revealEndpoint(@NotNull Project project, @NotNull PsiMethod handler) {
+        ToolWindow toolWindow = ToolWindowManager.getInstance(project).getToolWindow(TOOL_WINDOW_ID);
+        if (toolWindow == null) {
             return;
         }
-        ToolWindow toolWindow = ToolWindowManager.getInstance(project).getToolWindow(TOOL_WINDOW_ID);
-        if (toolWindow != null) {
-            toolWindow.activate(null);
+        EndpointsPanel panel = activePanel(project);
+        if (panel == null) {
+            // first activation creates the content; select once it exists
+            toolWindow.activate(() -> {
+                EndpointsPanel created = activePanel(project);
+                if (created != null) {
+                    created.selectHandler(handler);
+                }
+            });
+            return;
         }
+        toolWindow.activate(null);
         panel.selectHandler(handler);
+    }
+
+    private static @Nullable EndpointsPanel activePanel(@NotNull Project project) {
+        synchronized (ACTIVE) {
+            return ACTIVE.get(project);
+        }
     }
 
     private void selectHandler(@NotNull PsiMethod handler) {

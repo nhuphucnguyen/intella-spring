@@ -13,6 +13,7 @@ import com.intellij.openapi.ui.LabeledComponent;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
+import javax.swing.JButton;
 import javax.swing.JTextField;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +67,7 @@ public final class IntellaSpringBootSettingsEditor
         return configuration.getConfigurationModule().getModule();
     }
 
-    private static final class MainClassEditor extends SettingsEditor<IntellaSpringBootRunConfiguration> {
+    private final class MainClassEditor extends SettingsEditor<IntellaSpringBootRunConfiguration> {
         private final JTextField field = new JTextField();
 
         @Override
@@ -82,7 +83,55 @@ public final class IntellaSpringBootSettingsEditor
 
         @Override
         protected @NotNull JComponent createEditor() {
-            return LabeledComponent.create(field, "Main class");
+            javax.swing.JPanel row = new javax.swing.JPanel(new java.awt.BorderLayout(4, 0));
+            JButton browse = new JButton("…");
+            browse.setToolTipText("Choose a Spring Boot application class");
+            browse.addActionListener(e -> chooseMainClass());
+            row.add(field, java.awt.BorderLayout.CENTER);
+            row.add(browse, java.awt.BorderLayout.EAST);
+            return LabeledComponent.create(row, "Main class");
+        }
+
+        /** Speed-searchable chooser over every @SpringBootApplication class with a main method. */
+        private void chooseMainClass() {
+            record Entry(@NotNull String qualifiedName, @NotNull com.intellij.pom.Navigatable target) {
+            }
+            java.util.List<Entry> entries = com.intellij.openapi.application.ReadAction.compute(() ->
+                    dev.phucngu.intellaspring.boot.BootApplicationClasses
+                            .findBootApplicationClasses(configuration.getProject()).stream()
+                            .map(c -> new Entry(String.valueOf(c.getQualifiedName()),
+                                    (com.intellij.pom.Navigatable) c))
+                            .toList());
+            if (entries.isEmpty()) {
+                new com.intellij.notification.Notification("IntellaSpring", "No Spring Boot applications",
+                        "No @SpringBootApplication class with a main method was found in this project.",
+                        com.intellij.notification.NotificationType.INFORMATION).notify(configuration.getProject());
+                return;
+            }
+            com.intellij.openapi.ui.popup.JBPopupFactory.getInstance()
+                    .createPopupChooserBuilder(entries)
+                    .setTitle("Spring Boot Application Class")
+                    .setRenderer(new javax.swing.DefaultListCellRenderer() {
+                        @Override
+                        public java.awt.Component getListCellRendererComponent(javax.swing.JList<?> list,
+                                                                                Object value, int index,
+                                                                                boolean selected, boolean focus) {
+                            java.awt.Component c = super.getListCellRendererComponent(list, value, index, selected, focus);
+                            if (value instanceof Entry entry && c instanceof javax.swing.JLabel label) {
+                                label.setText(entry.qualifiedName());
+                            }
+                            return c;
+                        }
+                    })
+                    .setNamerForFiltering(Entry::qualifiedName)
+                    .setFilterAlwaysVisible(true)
+                    .setItemChosenCallback(entry -> {
+                        if (entry != null) {
+                            field.setText(entry.qualifiedName());
+                        }
+                    })
+                    .createPopup()
+                    .showInFocusCenter();
         }
     }
 

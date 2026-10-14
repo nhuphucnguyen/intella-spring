@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.7.0 — Unreleased
+### Added
+- **S10 first slice**: a main-class picker for the Boot run editor — the "…" button next to
+  Main class opens a searchable chooser over every @SpringBootApplication class with a main
+  method in the project; and the **endpoint gutter icon** on handler methods (verb + full
+  path in the tooltip) that opens the Spring Endpoints tool window with that handler
+  selected — the reverse of the tree's click-to-handler.
 ## 0.6.0 — Unreleased
 ### Added
 - **@Value placeholder inspection** (S9.4 slice): `${key}` in `@Value` must exist in the

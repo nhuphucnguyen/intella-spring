@@ -25,7 +25,7 @@ Legend: ✅ shipped · 🔨 milestone assigned · ❌ not planned in v1.
 | **Config metadata completion** | properties + yml via microservices.jvm | ✅ own parser + completion (value hints/@ConfigurationProperties → later) | S6 |
 | Deprecated keys, docs, unknown-key inspection | ✅ | ✅ (properties side; yaml docs → later) | S6 |
 | @ConfigurationProperties key gen + navigation | ✅ | 🔨 | S6 |
-| **MVC** | endpoints provider, mapping gutter, view resolvers | ✅ model + endpoints tool window (tree, copy-as-cURL, navigation); mapping gutter → S10 | S7 |
+| **MVC** | endpoints provider, mapping gutter, view resolvers | ✅ model + endpoints tool window + mapping gutter→reveal (view resolvers → later) | S7/S10 |
 | Ambiguous mapping inspection | ✅ | ✅ (flags both handlers) | S7 |
 | **Beans view** | Services-view integration (gated framework) | ✅ own tool window + dependency edges (diagram canvas → later) | S8 |
 | Beans diagram | platform diagrams | ✅ dependency lists in the Beans view (graph canvas → later) | S8 |

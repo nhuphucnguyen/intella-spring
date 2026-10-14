@@ -24,6 +24,8 @@
                                         implementationClass="dev.phucngu.intellaspring.ui.SpringInjectionLineMarkerProvider"/>
         <codeInsight.lineMarkerProvider language="XML"
                                         implementationClass="dev.phucngu.intellaspring.ui.SpringXmlBeanLineMarkerProvider"/>
+        <codeInsight.lineMarkerProvider language="JAVA"
+                                        implementationClass="dev.phucngu.intellaspring.ui.SpringMappingLineMarkerProvider"/>
         <psi.referenceContributor language="XML"
                                   implementation="dev.phucngu.intellaspring.xml.SpringXmlReferenceContributor"/>
         <completion.contributor language="XML"

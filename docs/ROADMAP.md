@@ -195,14 +195,13 @@ canvas (platform DiagramProvider), stereotype/profile filters.
   Also shipped as an S9.4 slice: the **@Value placeholder inspection** against the
   configuration metadata (adaptive, default-aware).
 
-## S10 — Polish & parity sweep
-- Intentions: inject field → constructor injection; introduce bean for field;
-  generate @Component from usage quick-fixes.
-- Generate menu: Constructor/Setters wiring (XML), new @Configuration/@Component file.
-- Profile switcher action + per-context active profiles.
-- Icon set pass, keymap entries for all actions, Productivity Guide stats.
-- Performance: model cache metrics, startup cost, dumb-mode grace.
-- Kotlin sources: UAST-based where line markers/inspections are already UAST-ready.
+## S10 — Polish & parity sweep — first slice shipped
+Shipped: the run editor's **main-class picker** (searchable chooser over all Boot
+applications with main methods; empty state explains itself) and the **endpoint gutter
+marker** on handler methods revealing the handler in the Spring Endpoints tool window.
+Remaining: intentions (inject field → constructor, introduce bean), generate menu
+(XML wiring, new @Configuration/@Component file), profile switcher, icon pass,
+Productivity Guide stats, Kotlin/UAST readiness.
 
 ## Explicit non-goals (v1)
 Spring Cloud/Modulith/Integration graph DSLs, remote/target run, JVM debugger
