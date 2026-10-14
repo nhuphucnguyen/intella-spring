@@ -182,9 +182,10 @@ canvas (platform DiagramProvider), stereotype/profile filters.
   from live start.spring.io metadata (curated fallback offline), generation to disk with
   zip-slip-guarded extraction and an "Open Project" notification (ProjectManagerEx.openProject;
   bundled Maven/Gradle importers load it).
-- **Spring Data JPA** (S9.2): repository interface detection (`extends Repository`),
-  derived-query parse + validate against entity properties (keyword table from
-  spring-data-commons docs), `@Query` presence checks.
+- **Spring Data JPA (S9.2) — ✅ shipped**: repository detection through the substituted
+  type hierarchy, derived-query property-path validation (greedy camel/underscore walk,
+  guarded And/Or split, keyword table, OrderBy paths), `@Query` exemption. Deferred:
+  property-path completion, pagination/sort parameter checks.
 - **Spring Security** (S9.3): `@PreAuthorize`/`@PostAuthorize` expression structure
   checks, `<sec:intercept-url>` pattern/attribute assist.
 - **SpEL** (S9.4): expression tokenizer/parser for `@Value("#{…}")`, security

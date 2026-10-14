@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.0 — Unreleased
+### Added
+- **S9.2 Spring Data derived-query inspection**: repository interfaces are detected through
+  the type hierarchy (generics substituted through every hop, so
+  `extends JpaRepository<Person, Long>` resolves Person too) and every `findBy…`/`countBy…`/
+  `deleteBy…`/… method is validated against the entity: property paths (greedy
+  camelCase/underscore walk, And/Or split guarded so `findByOwnerName` never splits on "Or",
+  keyword-aware) that don't resolve become editor errors — typos Spring only reports at
+  startup. `@Query` methods are exempt.
 ## 0.4.0 — Unreleased
 ### Added
 - **S9.1 Spring Initializr wizard**: File → New → "Spring Boot Project (Initializr)…" —

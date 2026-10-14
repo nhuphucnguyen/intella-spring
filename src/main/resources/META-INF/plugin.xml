@@ -43,6 +43,9 @@
         <localInspection implementationClass="dev.phucngu.intellaspring.inspection.SpringAmbiguousMappingInspection"
                          language="JAVA" shortName="SpringAmbiguousMapping" displayName="Ambiguous request mapping"
                          groupPath="Java" groupName="Spring" enabledByDefault="true" level="ERROR"/>
+        <localInspection implementationClass="dev.phucngu.intellaspring.inspection.SpringJpaDerivedQueryInspection"
+                         language="JAVA" shortName="SpringJpaDerivedQuery" displayName="Spring Data derived query problems"
+                         groupPath="Java" groupName="Spring" enabledByDefault="true" level="ERROR"/>
         <configurationType implementation="dev.phucngu.intellaspring.boot.IntellaSpringBootConfigurationType"/>
         <runConfigurationProducer implementation="dev.phucngu.intellaspring.boot.IntellaSpringBootRunConfigurationProducer"/>
         <localInspection implementationClass="dev.phucngu.intellaspring.inspection.SpringAutowiringInspection"

@@ -30,7 +30,7 @@ Legend: ✅ shipped · 🔨 milestone assigned · ❌ not planned in v1.
 | **Beans view** | Services-view integration (gated framework) | ✅ own tool window + dependency edges (diagram canvas → later) | S8 |
 | Beans diagram | platform diagrams | ✅ dependency lists in the Beans view (graph canvas → later) | S8 |
 | **Initializr wizard** | ✅ | ✅ wizard + live start.spring.io metadata + offline fallback | S9.1 |
-| Spring Data derived queries | ✅ (ORM EPs) | 🔨 own parser | S9.2 |
+| Spring Data derived queries | ✅ (ORM EPs) | ✅ property-path validation + repo/domain detection | S9.2 |
 | Security SpEL checks | ✅ | 🔨 | S9.3 |
 | Cron completion (@Scheduled) | ✅ (cron module) | 🔨 | S9.5 |
 | Kotlin support | ✅ (spring.kotlin) | 🔨 UAST-ready pieces only | S10 |
