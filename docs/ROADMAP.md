@@ -18,7 +18,18 @@ Spring context (like IDEA's autodetected single-fileset case). An explicit multi
 Each milestone = one or more commits with tests + CHANGELOG/PARITY updates; runnable ZIP at
 every milestone.
 
-## S1 — Bean model core (the `CommonSpringBean` moment)
+## S1 — Bean model core (the `CommonSpringBean` moment) — ✅ shipped
+
+Delivered: `SpringBeanDef` record (name/aliases/type/qualifiers/scope/profiles/primary/lazy/source),
+`SpringAnnotations` FQN registry, `SpringNames` (JavaBeans decapitalize, XML name splitting),
+`SpringBeanScanner` (stereotype classes via transitive meta-annotation discovery — custom
+stereotypes and the full `@SpringBootApplication → @SpringBootConfiguration → @Configuration →
+@Component` chain work; `@Bean` methods with value/name aliasing) and `XmlBeanScanner`
+(`<bean>` id/name/alias tags, nested `profile=` groups, unresolved classes tolerated), behind
+`SpringContextService` (project service; per-module snapshot cached against the PSI
+modification counter, root changes invalidate). Tests: `SpringBeanModelTest`,
+`SpringXmlBeanModelTest` — Spring annotations are declared in fixture sources under their
+real FQNs, so the scanner sees them exactly as it sees library annotations in real projects.
 One model interface for beans regardless of origin:
 - `SpringBeanDef`: name (annotation value or decapitalized class / XML id), aliases,
   bean type (`PsiType`), qualifiers, scope, profile, primary, source element.

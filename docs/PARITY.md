@@ -5,9 +5,9 @@ Legend: ✅ shipped · 🔨 milestone assigned · ❌ not planned in v1.
 
 | Area | IDEA (Ultimate, gated) | Intella Spring | Milestone |
 |---|---|---|---|
-| **Bean model** | CommonSpringBean over XML DOM + JAM + custom namespaces | 🔨 unified `SpringBeanDef` (stereotypes, @Bean, XML) | S1 |
-| Contexts | SpringFacet + named file sets + profiles | 🔨 module-with-Spring = one context (facet later) | S1 |
-| Custom stereotypes via meta-@Component | ✅ | 🔨 | S1 |
+| **Bean model** | CommonSpringBean over XML DOM + JAM + custom namespaces | ✅ unified `SpringBeanDef` (stereotypes, @Bean, XML) | S1 |
+| Contexts | SpringFacet + named file sets + profiles | ✅ module-with-Spring = one context (facet later) | S1 |
+| Custom stereotypes via meta-@Component | ✅ | ✅ | S1 |
 | **Gutter** | bean icon, injection arrows, merged markers | 🔨 | S2 |
 | Go to Spring Bean | ✅ | 🔨 | S2 |
 | Bean find-usages / rename | ✅ | 🔨 | S2 |
@@ -17,7 +17,7 @@ Legend: ✅ shipped · 🔨 milestone assigned · ❌ not planned in v1.
 | **Autowiring analysis** | unresolved/ambiguous/qualifier quick-fixes | 🔨 raw-type + qualifiers first | S4 |
 | `${placeholder}` references | ✅ | 🔨 | S4 |
 | SpEL `#{…}` references | dedicated module | 🔨 later (S9.4) | S9 |
-| Profiles (active per context) | ✅ + switcher action | 🔨 model-level S1, switcher S10 | S1/S10 |
+| Profiles (active per context) | ✅ + switcher action | 🔨 model-level ✅, switcher S10 | S1/S10 |
 | **Boot run config** | profiles/banner/optimization/devtools restart | 🔨 | S5 |
 | Producer + main-class validation | ✅ | 🔨 | S5 |
 | Endpoints & Beans tabs (JMX/actuator) | ✅ | 🔨 endpoints+beans tabs | S5 |

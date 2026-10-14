@@ -17,5 +17,11 @@
     <depends>org.jetbrains.plugins.yaml</depends>
 
     <extensions defaultExtensionNs="com.intellij">
+        <projectService serviceImplementation="dev.phucngu.intellaspring.spring.SpringContextService"/>
     </extensions>
+
+    <projectListeners>
+        <listener class="dev.phucngu.intellaspring.spring.SpringModelRootListener"
+                  topic="com.intellij.openapi.roots.ModuleRootListener"/>
+    </projectListeners>
 </idea-plugin>
