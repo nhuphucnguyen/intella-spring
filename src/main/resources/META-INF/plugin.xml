@@ -66,6 +66,10 @@
         <toolWindow id="Spring Beans" anchor="bottom" icon="/icons/springBean.svg"
                     factoryClass="dev.phucngu.intellaspring.beans.BeansToolWindowFactory"
                     canCloseContents="false"/>
+        <intentionAction>
+            <className>dev.phucngu.intellaspring.intention.ConvertToConstructorInjectionIntention</className>
+            <category>Spring</category>
+        </intentionAction>
     </extensions>
 
     <actions>

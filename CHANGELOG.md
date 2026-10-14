@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.8.0 — Unreleased
+### Added
+- **S10 intentions slice**: Alt+Enter on an `@Autowired`/`@Inject` field — "Convert
+  '@Autowired' field(s) to constructor injection". All injection fields in the class become
+  `final` constructor parameters assigned in the constructor (a new one after the last
+  field, or the existing single constructor extended); `@Qualifier` travels to the
+  parameter. `@Resource` (name-based), `@Value` (configuration), static and initialized
+  fields are left alone, and the action stays away from enums, Lombok
+  `@RequiredArgsConstructor` classes and classes that already inject via an `@Autowired`
+  constructor.
+
 ## 0.7.0 — Unreleased
 ### Added
 - **S10 first slice**: a main-class picker for the Boot run editor — the "…" button next to
