@@ -49,6 +49,9 @@
                          language="JAVA" shortName="SpringAutowiringInspection" suppressId="SpringAutowiringInspection"
                          displayName="Spring autowiring problems" groupPath="Java" groupName="Spring"
                          enabledByDefault="true" level="ERROR"/>
+        <toolWindow id="Spring Endpoints" anchor="bottom" icon="/icons/springBean.svg"
+                    factoryClass="dev.phucngu.intellaspring.endpoints.EndpointsToolWindowFactory"
+                    canCloseContents="false"/>
     </extensions>
 
     <actions>

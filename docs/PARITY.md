@@ -20,12 +20,12 @@ Legend: ✅ shipped · 🔨 milestone assigned · ❌ not planned in v1.
 | Profiles (active per context) | ✅ + switcher action | 🔨 model-level ✅, switcher S10 | S1/S10 |
 | **Boot run config** | profiles/banner/optimization/devtools restart | ✅ profiles/banner/optimization + producer (devtools/actuator tabs → S5.2) | S5 |
 | Producer + main-class validation | ✅ | ✅ | S5 |
-| Endpoints & Beans tabs (JMX/actuator) | ✅ | 🔨 endpoints+beans tabs | S5 |
+| Endpoints & Beans tabs (JMX/actuator) | ✅ | ✅ static Endpoints tree (live JMX/actuator → later); Beans view S8 | S7 |
 | Update on frame deactivation | ✅ | 🔨 | S5 |
 | **Config metadata completion** | properties + yml via microservices.jvm | ✅ own parser + completion (value hints/@ConfigurationProperties → later) | S6 |
 | Deprecated keys, docs, unknown-key inspection | ✅ | ✅ (properties side; yaml docs → later) | S6 |
 | @ConfigurationProperties key gen + navigation | ✅ | 🔨 | S6 |
-| **MVC** | endpoints provider, mapping gutter, view resolvers | 🔨 own model + gutter + tool window | S7 |
+| **MVC** | endpoints provider, mapping gutter, view resolvers | ✅ model + endpoints tool window (tree, copy-as-cURL, navigation); mapping gutter → S10 | S7 |
 | Ambiguous mapping inspection | ✅ | ✅ (flags both handlers) | S7 |
 | **Beans view** | Services-view integration (gated framework) | 🔨 own tool window | S8 |
 | Beans diagram | platform diagrams | 🔨 | S8 |

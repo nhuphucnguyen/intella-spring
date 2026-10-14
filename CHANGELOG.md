@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.0 — Unreleased
+### Added
+- **S7.2 Endpoints tool window** ("Spring Endpoints", bottom): every request mapping in the
+  project as a module → controller → endpoint tree, color-coded HTTP verbs, double-click /
+  Enter / context-menu navigation to the handler, Copy-as-cURL (port follows the project's
+  `server.port`), Copy Path, Group-by-Controller toggle, speed search, and debounced
+  auto-refresh while the window is open.
 ## 0.1.0 — Unreleased
 ### Added
 - Project scaffold: IntelliJ Platform Gradle 2.18.1 against unified IDEA 2026.2 (Java 25),

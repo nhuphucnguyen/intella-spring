@@ -147,14 +147,17 @@ YAML-side documentation and inspection.
   navigate key → backing field.
 - Find usages / rename across both file kinds.
 
-## S7 — MVC & web endpoints — core shipped
+## S7 — MVC & web endpoints — ✅ shipped
 
 Delivered: `RequestMappingModel` collects every handler with its full path (class-level
 @RequestMapping prefix + method path) and HTTP verbs (from the mapping annotation kind, or
 @RequestMapping(method=…)); the **Ambiguous request mapping** inspection flags two handlers
 serving the same path with overlapping verbs (a Spring startup failure), pointing each at the
-other. Remaining for S7.2: endpoints tool window (tree of mappings, copy-as-curl), handler
-gutter navigation, view-template resolution assist.
+other. S7.2 shipped: the **Spring Endpoints tool window** — module → controller → endpoint
+tree with color-coded verbs, handler navigation (double-click/Enter/context menu),
+Copy-as-cURL (port follows `server.port`), Copy Path, Group-by-Controller toggle, speed
+search, debounced auto-refresh on PSI changes while visible. Deferred: handler-mapping
+gutter icon (→ S10), view-template resolution assist.
 - Mapping model: `@RequestMapping/@GetMapping/@PostMapping/…` on classes+methods,
   path merging (class + method), consumes/produces.
 - Gutter: navigate method ↔ URL; endpoints collector per module.
