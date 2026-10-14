@@ -1,0 +1,21 @@
+<idea-plugin>
+    <id>community.intellaspring</id>
+    <name>Intella Spring</name>
+    <vendor>community</vendor>
+    <description><![CDATA[
+    Spring &amp; Spring Boot support for IntelliJ IDEA on the free tier: bean model across XML and Java
+    configuration, autowiring analysis, gutter navigation, a Spring Boot run configuration with
+    actuator tabs, and configuration-metadata completion for application.properties / application.yml.
+    <br><br>
+    The Spring plugins bundled with IDEA are Ultimate-license-gated; this plugin brings comparable
+    assistance to everyone. It depends only on the platform, Java, Properties and YAML support.
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.java</depends>
+    <depends>com.intellij.properties</depends>
+    <depends>org.jetbrains.plugins.yaml</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+    </extensions>
+</idea-plugin>
