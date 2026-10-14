@@ -87,6 +87,18 @@ public class SpringInjectionStylesTest extends BasePlatformTestCase {
         assertEquals(List.of(), SpringInjections.injectionPoints(findClass("demo.UserService")));
     }
 
+    public void testInjectionPointsSortProjectSourcesFirstAlphabetically() {
+        addClass("package demo;\n@org.springframework.stereotype.Component\npublic class ZetaConsumer {\n"
+                + "  @org.springframework.beans.factory.annotation.Autowired private demo.UserService z;\n}");
+        addClass("package demo;\n@org.springframework.stereotype.Component\npublic class AlphaConsumer {\n"
+                + "  @org.springframework.beans.factory.annotation.Autowired private demo.UserService a;\n}");
+        var points = dev.phucngu.intellaspring.ui.MarkerSupport.sortedForPresentation(
+                getProject(), SpringInjections.injectionPoints(findClass("demo.UserService")));
+        var labels = points.stream().map(dev.phucngu.intellaspring.ui.MarkerSupport::memberLabel).toList();
+        assertEquals(labels.toString(), "AlphaConsumer.a", labels.get(0));
+        assertEquals(labels.toString(), "ZetaConsumer.z", labels.get(labels.size() - 1));
+    }
+
     public void testMissingBeanThroughImplicitConstructorIsAnError() {
         addClass("package demo;\n@org.springframework.stereotype.Component\npublic class CtorMissing {\n"
                 + "  public CtorMissing(demo.MissingService missing) { }\n}");

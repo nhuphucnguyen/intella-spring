@@ -128,8 +128,36 @@ public final class MarkerSupport {
                     NotificationType.INFORMATION).notify(project);
             return;
         }
-        navigate(project, targets.stream().map(t -> (Navigatable) t).toList(),
+        // 'targets' is reassigned above, so alias it into an effectively-final local for the lambda
+        final java.util.List<? extends PsiElement> collected = targets;
+        navigate(project, com.intellij.openapi.application.ReadAction.compute(() ->
+                        sortedForPresentation(project, collected)).stream()
+                        .map(t -> (Navigatable) t).toList(),
                 event, title, n -> MarkerSupport.memberLabel((com.intellij.psi.PsiElement) n));
+    }
+
+    /**
+     * Presentation order for chooser entries: the project's own production code first, then
+     * its tests, then anything outside project sources (library/decompiled references, should
+     * they ever match) — alphabetical by "Owner.member" within each tier.
+     */
+    public static @NotNull java.util.List<PsiElement> sortedForPresentation(
+            @NotNull Project project, @NotNull java.util.List<? extends PsiElement> targets) {
+        com.intellij.openapi.roots.ProjectFileIndex index =
+                com.intellij.openapi.roots.ProjectRootManager.getInstance(project).getFileIndex();
+        java.util.Comparator<PsiElement> byTierThenLabel = java.util.Comparator
+                .comparingInt((PsiElement element) -> sourceTier(index, element))
+                .thenComparing(MarkerSupport::memberLabel, String.CASE_INSENSITIVE_ORDER);
+        return new java.util.ArrayList<>(targets.stream().sorted(byTierThenLabel).toList());
+    }
+
+    private static int sourceTier(@NotNull com.intellij.openapi.roots.ProjectFileIndex index,
+                                  @NotNull PsiElement element) {
+        var file = element.getContainingFile() != null ? element.getContainingFile().getVirtualFile() : null;
+        if (file == null || !index.isInSourceContent(file)) {
+            return 2; // outside project sources: library/decompiled — always last
+        }
+        return index.isInTestSourceContent(file) ? 1 : 0; // production first, tests next
     }
 
     /** "Owner.member" label for a field, method or parameter. */
