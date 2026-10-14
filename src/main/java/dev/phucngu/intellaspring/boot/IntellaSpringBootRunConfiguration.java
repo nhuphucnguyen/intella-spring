@@ -88,7 +88,10 @@ public class IntellaSpringBootRunConfiguration extends ApplicationConfiguration 
             throw new RuntimeConfigurationError("Main class is not a @SpringBootApplication class");
         }
         JavaParametersUtil.checkAlternativeJRE(this);
-        ProgramParametersUtil.checkWorkingDirectoryExist(this, getProject(), module);
+        // only an explicitly set working directory is checked; the default (project dir) is the IDE's business
+        if (getWorkingDirectory() != null) {
+            ProgramParametersUtil.checkWorkingDirectoryExist(this, getProject(), module);
+        }
     }
 
     @Override

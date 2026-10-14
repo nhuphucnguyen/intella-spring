@@ -4,7 +4,6 @@ import com.intellij.codeInsight.daemon.LineMarkerInfo;
 import com.intellij.codeInsight.daemon.LineMarkerProvider;
 import com.intellij.openapi.editor.markup.GutterIconRenderer;
 import com.intellij.openapi.module.Module;
-import com.intellij.pom.Navigatable;
 import com.intellij.psi.PsiClassType;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiMethod;
@@ -12,7 +11,6 @@ import com.intellij.psi.xml.XmlTag;
 import com.intellij.psi.xml.XmlToken;
 import com.intellij.psi.xml.XmlTokenType;
 import dev.phucngu.intellaspring.spring.SpringContextService;
-import dev.phucngu.intellaspring.spring.SpringInjections;
 import dev.phucngu.intellaspring.spring.model.SpringBeanDef;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -47,14 +45,9 @@ public class SpringXmlBeanLineMarkerProvider implements LineMarkerProvider {
                 token.getTextRange(),
                 IntellaSpringIcons.BEAN,
                 ignored -> "Spring bean: " + bean.displayName(),
-                (event, elt) -> {
-                    if (bean.beanType() instanceof PsiClassType classType && classType.resolve() != null) {
-                        MarkerSupport.navigate(module.getProject(),
-                                SpringInjections.injectionPoints(classType.resolve()).stream()
-                                        .map(t -> (Navigatable) t).toList(),
-                                event, "Injection Points", n -> MarkerSupport.memberLabel((com.intellij.psi.PsiElement) n));
-                    }
-                },
+                (event, elt) -> MarkerSupport.navigateToInjections(module.getProject(),
+                        bean.beanType() instanceof PsiClassType classType ? classType.resolve() : null,
+                        event, bean.displayName()),
                 GutterIconRenderer.Alignment.LEFT,
                 () -> "intellaspring.xmlbean." + bean.displayName());
     }

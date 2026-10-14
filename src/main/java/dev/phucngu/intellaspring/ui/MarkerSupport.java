@@ -6,11 +6,17 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.PopupStep;
 import com.intellij.openapi.ui.popup.util.BaseListPopupStep;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
 import com.intellij.pom.Navigatable;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiMember;
 import com.intellij.psi.PsiNamedElement;
+import com.intellij.psi.PsiReference;
+import com.intellij.psi.search.searches.ReferencesSearch;
 import com.intellij.psi.util.PsiTreeUtil;
+import dev.phucngu.intellaspring.spring.SpringInjections;
 import com.intellij.ui.awt.RelativePoint;
 import dev.phucngu.intellaspring.spring.SpringContextService;
 import dev.phucngu.intellaspring.spring.model.SpringBeanDef;
@@ -76,6 +82,36 @@ public final class MarkerSupport {
                     }
                 })
                 .show(new RelativePoint(event));
+    }
+
+    /**
+     * The leaf's click behavior: jump to injection points; a bean nobody wires yet falls back
+     * to its plain usages; a bean with no references at all gets a balloon instead of silence.
+     */
+    public static void navigateToInjections(@NotNull Project project, @Nullable PsiClass beanType,
+                                            @NotNull MouseEvent event, @NotNull String beanName) {
+        if (beanType == null) {
+            return;
+        }
+        java.util.List<PsiElement> targets = new java.util.ArrayList<>(SpringInjections.injectionPoints(beanType));
+        String title = "Injection Points";
+        if (targets.isEmpty()) {
+            title = "Usages";
+            for (PsiReference reference : ReferencesSearch.search(beanType)) {
+                PsiMember member = PsiTreeUtil.getParentOfType(reference.getElement(), PsiMember.class, false);
+                if (member != null) {
+                    targets.add(member);
+                }
+            }
+        }
+        if (targets.isEmpty()) {
+            new Notification("IntellaSpring", "Spring bean '" + beanName + "'",
+                    "No injection points or usages — nothing references this bean yet.",
+                    NotificationType.INFORMATION).notify(project);
+            return;
+        }
+        navigate(project, targets.stream().map(t -> (Navigatable) t).toList(),
+                event, title, n -> MarkerSupport.memberLabel((com.intellij.psi.PsiElement) n));
     }
 
     /** "Owner.member" label for a field, method or parameter. */

@@ -15,6 +15,7 @@ import com.intellij.psi.PsiParameter;
 import com.intellij.psi.PsiType;
 import com.intellij.ui.awt.RelativePoint;
 import dev.phucngu.intellaspring.spring.SpringAnnotations;
+import dev.phucngu.intellaspring.spring.SpringInjections;
 import dev.phucngu.intellaspring.spring.model.SpringBeanDef;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -39,11 +40,11 @@ public class SpringInjectionLineMarkerProvider implements LineMarkerProvider {
         PsiElement owner = identifier.getParent();
         List<PsiType> injectedTypes = null;
         if (owner instanceof PsiField field && field.getNameIdentifier() == identifier
-                && field.getAnnotation(SpringAnnotations.AUTOWIRED) != null) {
+                && (SpringInjections.isAutowiredField(field) || SpringInjections.isLombokInjectedField(field))) {
             injectedTypes = List.of(field.getType());
         } else if (owner instanceof PsiMethod method && method.getNameIdentifier() == identifier
-                && (method.getAnnotation(SpringAnnotations.AUTOWIRED) != null
-                || method.getAnnotation(SpringAnnotations.BEAN) != null)) {
+                && (SpringInjections.isAutowiredMethod(method) || SpringInjections.isBeanFactoryMethod(method)
+                || (method.isConstructor() && SpringInjections.isImplicitInjectionConstructor(method)))) {
             Set<PsiType> parameterTypes = new LinkedHashSet<>();
             for (PsiParameter parameter : method.getParameterList().getParameters()) {
                 parameterTypes.add(parameter.getType());

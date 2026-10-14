@@ -68,12 +68,14 @@ public class SpringInjectionsTest extends BasePlatformTestCase {
         var provider = new SpringBeanLineMarkerProvider();
         var marker = provider.getLineMarkerInfo(findClass("demo.Consumer").getNameIdentifier());
         assertNotNull("stereotype class must carry the bean gutter icon", marker);
-        assertEquals("Spring bean: consumer", marker.createGutterRenderer().getTooltipText());
+        assertTrue(marker.createGutterRenderer().getTooltipText(),
+                marker.createGutterRenderer().getTooltipText().startsWith("Spring bean: consumer"));
 
         var methodMarker = provider.getLineMarkerInfo(findClass("demo.AppConfig").findMethodsByName("userService", false)[0]
                 .getNameIdentifier());
         assertNotNull("@Bean method must carry the bean gutter icon", methodMarker);
-        assertEquals("Spring bean: userService", methodMarker.createGutterRenderer().getTooltipText());
+        assertTrue(methodMarker.createGutterRenderer().getTooltipText(),
+                methodMarker.createGutterRenderer().getTooltipText().startsWith("Spring bean: userService"));
     }
 
     public void testReverseMarkerOnAutowiredFieldLeadsToBean() {

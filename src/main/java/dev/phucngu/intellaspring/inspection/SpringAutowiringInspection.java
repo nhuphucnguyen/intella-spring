@@ -49,19 +49,24 @@ public class SpringAutowiringInspection extends LocalInspectionTool {
         return new JavaElementVisitor() {
             @Override
             public void visitField(@NotNull PsiField field) {
-                if (field.getAnnotation(SpringAnnotations.AUTOWIRED) != null) {
+                if (dev.phucngu.intellaspring.spring.SpringInjections.isAutowiredField(field)) {
                     checkInjection(holder, field, field.getType(), field.getNameIdentifier());
                 }
             }
 
             @Override
             public void visitMethod(@NotNull PsiMethod method) {
-                boolean wired = method.getAnnotation(SpringAnnotations.AUTOWIRED) != null;
-                boolean beanFactory = method.getAnnotation(SpringAnnotations.BEAN) != null;
-                if (!wired && !beanFactory) {
+                boolean wired = dev.phucngu.intellaspring.spring.SpringInjections.isAutowiredMethod(method);
+                boolean beanFactory = dev.phucngu.intellaspring.spring.SpringInjections.isBeanFactoryMethod(method);
+                boolean implicitConstructor = method.isConstructor()
+                        && dev.phucngu.intellaspring.spring.SpringInjections.isImplicitInjectionConstructor(method);
+                if (!wired && !beanFactory && !implicitConstructor) {
                     return;
                 }
                 for (PsiParameter parameter : method.getParameterList().getParameters()) {
+                    if (parameter.getAnnotation(SpringAnnotations.VALUE) != null) {
+                        continue; // configuration value, not a bean dependency
+                    }
                     checkInjection(holder, parameter, parameter.getType(), parameter.getNameIdentifier());
                 }
             }
@@ -121,7 +126,15 @@ public class SpringAutowiringInspection extends LocalInspectionTool {
     private static boolean isRequired(@NotNull PsiModifierListOwner member) {
         PsiAnnotation autowired = member.getAnnotation(SpringAnnotations.AUTOWIRED);
         if (autowired == null) {
-            return true; // @Bean parameters are always required
+            // other injection kinds and implicit constructors/parameters are always required;
+            // missing @Autowired annotation means "required" for them
+            if (member instanceof PsiParameter parameter
+                    && parameter.getDeclarationScope() instanceof PsiMethod declaring
+                    && declaring.getAnnotation(SpringAnnotations.AUTOWIRED) != null) {
+                autowired = declaring.getAnnotation(SpringAnnotations.AUTOWIRED);
+            } else {
+                return true;
+            }
         }
         return !"false".equals(autowired.findDeclaredAttributeValue("required") != null
                 ? autowired.findDeclaredAttributeValue("required").getText() : "true");

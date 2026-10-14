@@ -25,6 +25,18 @@ public final class SpringAnnotations {
     public static final String PROFILE = "org.springframework.context.annotation.Profile";
 
     public static final String AUTOWIRED = "org.springframework.beans.factory.annotation.Autowired";
+
+    // The full set IDEA's SpringAutowireUtil treats as autowiring annotations.
+    public static final String INJECT_JAVAX = "javax.inject.Inject";
+    public static final String INJECT_JAKARTA = "jakarta.inject.Inject";
+    public static final String RESOURCE_JAVAX = "javax.annotation.Resource";
+    public static final String RESOURCE_JAKARTA = "jakarta.annotation.Resource";
+    public static final List<String> AUTOWIRED_ANNOTATIONS = List.of(
+            AUTOWIRED, INJECT_JAVAX, INJECT_JAKARTA, RESOURCE_JAVAX, RESOURCE_JAKARTA);
+
+    // Lombok constructors stand in for Spring's implicit single-constructor injection.
+    public static final String LOMBOK_REQUIRED_ARGS = "lombok.RequiredArgsConstructor";
+    public static final String LOMBOK_ALL_ARGS = "lombok.AllArgsConstructor";
     public static final String VALUE = "org.springframework.beans.factory.annotation.Value";
     public static final String COMPONENT_SCAN = "org.springframework.context.annotation.ComponentScan";
 

@@ -29,6 +29,7 @@
         <completion.contributor language="XML"
                                 implementationClass="dev.phucngu.intellaspring.xml.SpringXmlCompletionContributor"/>
         <internalFileTemplate name="spring-beans.xml"/>
+        <notificationGroup id="IntellaSpring" displayType="BALLOON"/>
         <projectService serviceImplementation="dev.phucngu.intellaspring.config.SpringConfigMetadataService"/>
         <completion.contributor language="Properties"
                                 implementationClass="dev.phucngu.intellaspring.config.SpringPropertiesCompletionContributor"/>

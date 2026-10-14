@@ -5,7 +5,6 @@ import com.intellij.codeInsight.daemon.LineMarkerProvider;
 import com.intellij.openapi.editor.markup.GutterIconRenderer;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
-import com.intellij.pom.Navigatable;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiClassType;
 import com.intellij.psi.PsiElement;
@@ -13,7 +12,6 @@ import com.intellij.psi.PsiIdentifier;
 import com.intellij.psi.PsiMethod;
 import dev.phucngu.intellaspring.spring.SpringAnnotations;
 import dev.phucngu.intellaspring.spring.SpringContextService;
-import dev.phucngu.intellaspring.spring.SpringInjections;
 import dev.phucngu.intellaspring.spring.model.SpringBeanDef;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -55,21 +53,15 @@ public class SpringBeanLineMarkerProvider implements LineMarkerProvider {
                 identifier,
                 identifier.getTextRange(),
                 IntellaSpringIcons.BEAN,
-                ignored -> "Spring bean: " + bean.displayName(),
-                (event, elt) -> navigateToInjections(element.getProject(), owner, event),
+                ignored -> "Spring bean: " + bean.displayName() + " — click to jump to injections",
+                (event, elt) -> navigateToInjections(element.getProject(), owner, event, bean.displayName()),
                 GutterIconRenderer.Alignment.LEFT,
                 () -> "intellaspring.bean." + bean.displayName());
     }
 
     private static void navigateToInjections(@NotNull Project project, @NotNull PsiElement owner,
-                                             @NotNull MouseEvent event) {
-        PsiClass beanType = beanTypeOf(owner);
-        if (beanType == null) {
-            return;
-        }
-        MarkerSupport.navigate(project,
-                SpringInjections.injectionPoints(beanType).stream().map(t -> (Navigatable) t).toList(),
-                event, "Injection Points", n -> MarkerSupport.memberLabel((com.intellij.psi.PsiElement) n));
+                                             @NotNull MouseEvent event, @NotNull String beanName) {
+        MarkerSupport.navigateToInjections(project, beanTypeOf(owner), event, beanName);
     }
 
     private static @Nullable PsiClass beanTypeOf(@NotNull PsiElement owner) {
