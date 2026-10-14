@@ -29,3 +29,6 @@
   module resources and library jars; application.properties key completion with type/default
   tails and deprecation strikeout, quick docs, unknown-key inspection; application.yml
   nesting-aware next-segment key completion.
+- **S7 core (MVC)**: request-mapping model (class-prefix path joining, verbs per annotation
+  kind or @RequestMapping(method=…)) and the ambiguous-mapping inspection flagging clash both
+  ways.

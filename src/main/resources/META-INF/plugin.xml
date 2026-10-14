@@ -39,6 +39,9 @@
         <localInspection implementationClass="dev.phucngu.intellaspring.config.SpringUnknownConfigKeyInspection"
                          language="Properties" shortName="SpringUnknownConfigKey" displayName="Unknown Spring Boot configuration key"
                          groupPath="Java" groupName="Spring" enabledByDefault="true" level="WARNING"/>
+        <localInspection implementationClass="dev.phucngu.intellaspring.inspection.SpringAmbiguousMappingInspection"
+                         language="JAVA" shortName="SpringAmbiguousMapping" displayName="Ambiguous request mapping"
+                         groupPath="Java" groupName="Spring" enabledByDefault="true" level="ERROR"/>
         <configurationType implementation="dev.phucngu.intellaspring.boot.IntellaSpringBootConfigurationType"/>
         <runConfigurationProducer implementation="dev.phucngu.intellaspring.boot.IntellaSpringBootRunConfigurationProducer"/>
         <localInspection implementationClass="dev.phucngu.intellaspring.inspection.SpringAutowiringInspection"

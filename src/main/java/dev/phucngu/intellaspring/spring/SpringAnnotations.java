@@ -28,7 +28,24 @@ public final class SpringAnnotations {
     public static final String VALUE = "org.springframework.beans.factory.annotation.Value";
     public static final String COMPONENT_SCAN = "org.springframework.context.annotation.ComponentScan";
 
+    // Web MVC request mapping
+    public static final String REQUEST_MAPPING = "org.springframework.web.bind.annotation.RequestMapping";
+    public static final String GET_MAPPING = "org.springframework.web.bind.annotation.GetMapping";
+    public static final String POST_MAPPING = "org.springframework.web.bind.annotation.PostMapping";
+    public static final String PUT_MAPPING = "org.springframework.web.bind.annotation.PutMapping";
+    public static final String DELETE_MAPPING = "org.springframework.web.bind.annotation.DeleteMapping";
+    public static final String PATCH_MAPPING = "org.springframework.web.bind.annotation.PatchMapping";
+
     public static final String SPRING_BOOT_APPLICATION = "org.springframework.boot.autoconfigure.SpringBootApplication";
+
+    /** Mapping annotations with their implied HTTP methods (empty set = any). */
+    public static final java.util.Map<String, java.util.List<String>> MAPPING_ANNOTATIONS = java.util.Map.of(
+            GET_MAPPING, java.util.List.of("GET"),
+            POST_MAPPING, java.util.List.of("POST"),
+            PUT_MAPPING, java.util.List.of("PUT"),
+            DELETE_MAPPING, java.util.List.of("DELETE"),
+            PATCH_MAPPING, java.util.List.of("PATCH"),
+            REQUEST_MAPPING, java.util.List.of());
 
     public static final List<String> BASE_STEREOTYPES = List.of(
             COMPONENT, SERVICE, REPOSITORY, CONTROLLER, REST_CONTROLLER, CONFIGURATION);

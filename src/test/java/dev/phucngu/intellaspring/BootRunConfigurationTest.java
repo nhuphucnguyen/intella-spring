@@ -51,9 +51,10 @@ public class BootRunConfigurationTest extends BasePlatformTestCase {
 
     public void testCheckConfigurationAcceptsBootAppAndRejectsPlainMain() throws Exception {
         var type = ConfigurationTypeUtil.findConfigurationType(IntellaSpringBootConfigurationType.class);
-        var config = (IntellaSpringBootRunConfiguration)
-                type.getConfigurationFactories()[0].createTemplateConfiguration(getProject());
+        // construct directly: cached template configurations can outlive a previous fixture's temp dir
+        var config = new IntellaSpringBootRunConfiguration(getProject(), type.getConfigurationFactories()[0], "test");
         config.setModule(getModule());
+        config.setWorkingDirectory(null);
         config.setMainClassName("demo.DemoApplication");
         config.checkConfiguration();
 
@@ -81,8 +82,7 @@ public class BootRunConfigurationTest extends BasePlatformTestCase {
 
     public void testSuggestedNameUsesShortClass() {
         var type = ConfigurationTypeUtil.findConfigurationType(IntellaSpringBootConfigurationType.class);
-        var config = (IntellaSpringBootRunConfiguration)
-                type.getConfigurationFactories()[0].createTemplateConfiguration(getProject());
+        var config = new IntellaSpringBootRunConfiguration(getProject(), type.getConfigurationFactories()[0], "test");
         config.setMainClassName("com.example.orders.OrdersApplication");
         assertEquals("OrdersApplication", config.suggestedName());
     }

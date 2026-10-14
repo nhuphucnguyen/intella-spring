@@ -26,7 +26,7 @@ Legend: ✅ shipped · 🔨 milestone assigned · ❌ not planned in v1.
 | Deprecated keys, docs, unknown-key inspection | ✅ | ✅ (properties side; yaml docs → later) | S6 |
 | @ConfigurationProperties key gen + navigation | ✅ | 🔨 | S6 |
 | **MVC** | endpoints provider, mapping gutter, view resolvers | 🔨 own model + gutter + tool window | S7 |
-| Ambiguous mapping inspection | ✅ | 🔨 | S7 |
+| Ambiguous mapping inspection | ✅ | ✅ (flags both handlers) | S7 |
 | **Beans view** | Services-view integration (gated framework) | 🔨 own tool window | S8 |
 | Beans diagram | platform diagrams | 🔨 | S8 |
 | **Initializr wizard** | ✅ | 🔨 start.spring.io client | S9.1 |
