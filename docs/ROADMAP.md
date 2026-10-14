@@ -203,9 +203,11 @@ the **constructor-injection intention** (Alt+Enter on an `@Autowired`/`@Inject`
 field: all injection fields become final constructor parameters, `@Qualifier` travels
 along, `@Resource`/`@Value`/static/initialized fields excluded, single-existing-constructor
 extended), and the **introduce-bean quick-fix** on "No qualifying bean" (adds
-@Component/@Service/@Repository to a concrete project class and clears the error).
-Remaining: generate menu (XML wiring, new @Configuration/@Component file), profile
-switcher, icon pass, Productivity Guide stats, Kotlin/UAST readiness.
+@Component/@Service/@Repository to a concrete project class and clears the error), and
+**Generate ▸ Spring @Bean Method…** (Alt+Insert in a @Configuration class: searchable
+type chooser, factory method appended, constructor-aware body).
+Remaining: new @Configuration/@Component file action and XML wiring in the generate menu,
+profile switcher, icon pass, Productivity Guide stats, Kotlin/UAST readiness.
 
 ## Explicit non-goals (v1)
 Spring Cloud/Modulith/Integration graph DSLs, remote/target run, JVM debugger

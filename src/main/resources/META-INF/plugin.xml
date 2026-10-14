@@ -73,6 +73,10 @@
     </extensions>
 
     <actions>
+        <action id="IntellaSpring.GenerateBeanMethod" class="dev.phucngu.intellaspring.generate.GenerateBeanMethodAction"
+                text="Spring @Bean Method…" description="Generate a @Bean factory method for a chosen class">
+            <add-to-group group-id="GenerateGroup" anchor="first"/>
+        </action>
         <action id="IntellaSpring.GoToBean"
                 class="dev.phucngu.intellaspring.ui.GoToSpringBeanAction"
                 text="Spring Bean..."

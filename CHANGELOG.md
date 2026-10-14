@@ -14,6 +14,11 @@
   "Register 'X' as a Spring bean (@Component)" when X is a concrete project class without
   a stereotype — `@Service`/`@Repository` picked by name, and applying the fix clears the
   error immediately.
+- **Generate ▸ Spring @Bean Method…** (Alt+Insert inside a `@Configuration`/`@Component`
+  class): pick any concrete project class from a searchable chooser and a `@Bean` factory
+  method is appended — `return new X();` for default-constructible types, a
+  `return null; // TODO construct X` marker otherwise, with 2/3/… suffixing on name
+  clashes.
 
 ## 0.7.0 — Unreleased
 ### Added
