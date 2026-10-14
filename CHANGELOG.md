@@ -28,6 +28,15 @@
 - **Icon pass**: the two tool windows get dedicated icons (endpoint fan-out, bean pair)
   instead of sharing the leaf marker.
 
+### Fixed
+- Selecting a bean no longer spams SEVERE "Read access is allowed from inside read-action
+  only" errors (the beans details lists' implicit `toString()` walked the PSI during
+  paint); `SpringBeanDef.toString()` is now PSI-free, with a background-thread regression
+  test.
+- The endpoint gutter icon now reliably reveals its handler in the Spring Endpoints tool
+  window even on first activation (bounded retry through content creation and the async
+  first tree fill).
+
 ## 0.7.0 — Unreleased
 ### Added
 - **S10 first slice**: a main-class picker for the Boot run editor — the "…" button next to
