@@ -60,10 +60,10 @@
                          language="JAVA" shortName="SpringAutowiringInspection" suppressId="SpringAutowiringInspection"
                          displayName="Spring autowiring problems" groupPath="Java" groupName="Spring"
                          enabledByDefault="true" level="ERROR"/>
-        <toolWindow id="Spring Endpoints" anchor="bottom" icon="/icons/springBean.svg"
+        <toolWindow id="Spring Endpoints" anchor="bottom" icon="/icons/springEndpoints.svg"
                     factoryClass="dev.phucngu.intellaspring.endpoints.EndpointsToolWindowFactory"
                     canCloseContents="false"/>
-        <toolWindow id="Spring Beans" anchor="bottom" icon="/icons/springBean.svg"
+        <toolWindow id="Spring Beans" anchor="bottom" icon="/icons/springBeans.svg"
                     factoryClass="dev.phucngu.intellaspring.beans.BeansToolWindowFactory"
                     canCloseContents="false"/>
         <intentionAction>
