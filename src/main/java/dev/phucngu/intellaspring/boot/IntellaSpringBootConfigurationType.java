@@ -46,6 +46,13 @@ public class IntellaSpringBootConfigurationType implements ConfigurationType {
         }
 
         @Override
+        public @NotNull String getId() {
+            // required override on 2026.2: the default delegates to the localizable name,
+            // and factory ids must never depend on localization
+            return IntellaSpringBootConfigurationType.ID;
+        }
+
+        @Override
         public @NotNull RunConfiguration createTemplateConfiguration(@NotNull Project project) {
             return new IntellaSpringBootRunConfiguration(project, this, "App");
         }
