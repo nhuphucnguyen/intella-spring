@@ -22,6 +22,9 @@
 - **New ▸ Spring @Configuration Class / Spring @Component Class** (project view on a
   source directory): prompts for a name and creates the class with the stereotype
   imported and applied — no hand-writing the annotation import on a fresh project.
+- **Profile switcher**: the run editor's Active profiles field gains a "…" button opening
+  checkboxes over every profile the project knows — `application-<profile>.*` file names
+  and `spring.profiles.active` values — so switching profiles is a two-click affair.
 
 ## 0.7.0 — Unreleased
 ### Added

@@ -206,9 +206,11 @@ extended), and the **introduce-bean quick-fix** on "No qualifying bean" (adds
 @Component/@Service/@Repository to a concrete project class and clears the error),
 **Generate ▸ Spring @Bean Method…** (Alt+Insert in a @Configuration class: searchable
 type chooser, factory method appended, constructor-aware body), and **New ▸ Spring
-@Configuration/@Component Class** file actions (stereotype imported and applied).
-Remaining: XML wiring in the generate menu, profile switcher, icon pass,
-Productivity Guide stats, Kotlin/UAST readiness.
+@Configuration/@Component Class** file actions (stereotype imported and applied), and the
+**profile switcher** (the run editor's Active profiles "…" button with checkboxes over
+discovered profiles).
+Remaining: XML wiring in the generate menu, icon pass, Productivity Guide stats,
+Kotlin/UAST readiness.
 
 ## Explicit non-goals (v1)
 Spring Cloud/Modulith/Integration graph DSLs, remote/target run, JVM debugger

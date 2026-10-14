@@ -5,18 +5,30 @@ import com.intellij.execution.ui.CommonParameterFragments;
 import com.intellij.execution.ui.DefaultJreSelector;
 import com.intellij.execution.ui.RunConfigurationFragmentedEditor;
 import com.intellij.execution.ui.SettingsEditorFragment;
+import com.intellij.notification.NotificationGroupManager;
+import com.intellij.notification.NotificationType;
+import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.LabeledComponent;
+import com.intellij.ui.CheckBoxList;
+import com.intellij.ui.ScrollPaneFactory;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
 import javax.swing.JButton;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
+import java.awt.BorderLayout;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * The run-configuration editor, composed the way IDEA's Spring Boot plugin composes
@@ -135,8 +147,48 @@ public final class IntellaSpringBootSettingsEditor
         }
     }
 
-    private static final class ActiveProfilesEditor extends SettingsEditor<IntellaSpringBootRunConfiguration> {
+    private final class ActiveProfilesEditor extends SettingsEditor<IntellaSpringBootRunConfiguration> {
         private final JTextField field = new JTextField();
+        private final JButton browse = new JButton("…");
+
+        ActiveProfilesEditor() {
+            browse.addActionListener(event -> chooseProfiles());
+        }
+
+        /** Checkboxes over profiles discovered from application-<profile>.* files. */
+        private void chooseProfiles() {
+            Project project = configuration.getProject();
+            List<String> discovered = ReadAction.compute(() -> BootProfiles.discover(project));
+            if (discovered.isEmpty()) {
+                NotificationGroupManager.getInstance()
+                        .getNotificationGroup("IntellaSpring")
+                        .createNotification("No Spring profiles found",
+                                "Add application-<profile>.properties files to the project first.",
+                                NotificationType.INFORMATION)
+                        .notify(project);
+                return;
+            }
+            Set<String> current = Arrays.stream(field.getText().split(","))
+                    .map(String::trim).filter(s -> !s.isEmpty()).collect(Collectors.toCollection(LinkedHashSet::new));
+            CheckBoxList<String> list = new CheckBoxList<>();
+            for (String profile : discovered) {
+                list.addItem(profile, profile, current.contains(profile));
+            }
+            DialogWrapper dialog = new DialogWrapper(project) {
+                {
+                    init();
+                    setTitle("Active Spring Profiles");
+                }
+
+                @Override
+                protected @NotNull JComponent createCenterPanel() {
+                    return ScrollPaneFactory.createScrollPane(list, true);
+                }
+            };
+            if (dialog.showAndGet()) {
+                field.setText(String.join(", ", list.getCheckedItems()));
+            }
+        }
 
         @Override
         protected void resetEditorFrom(@NotNull IntellaSpringBootRunConfiguration configuration) {
@@ -151,7 +203,10 @@ public final class IntellaSpringBootSettingsEditor
 
         @Override
         protected @NotNull JComponent createEditor() {
-            return LabeledComponent.create(field, "Active profiles");
+            JPanel row = new JPanel(new BorderLayout(4, 0));
+            row.add(field, BorderLayout.CENTER);
+            row.add(browse, BorderLayout.EAST);
+            return LabeledComponent.create(row, "Active profiles");
         }
     }
 }
