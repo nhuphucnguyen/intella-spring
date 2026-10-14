@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.0 — Unreleased
+### Added
+- **S9.1 Spring Initializr wizard**: File → New → "Spring Boot Project (Initializr)…" —
+  name/location/group/artifact/package/description, build type (Maven / Gradle Groovy /
+  Gradle Kotlin), Boot version, packaging, Java version, and a searchable, grouped starter
+  list with checkboxes (live metadata from start.spring.io; curated built-in fallback when
+  offline). Create downloads the generated project zip, extracts it safely (zip-slip
+  guarded) into the chosen location and offers "Open Project" — the bundled Maven/Gradle
+  importers take it from there. (Verified live against start.spring.io.)
 ## 0.3.0 — Unreleased
 ### Added
 - **S8 Spring Beans tool window** ("Spring Beans", bottom): the whole bean model as a

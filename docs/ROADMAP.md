@@ -177,9 +177,11 @@ beans depend on what the factory injects). Deferred: XML `<property ref>` edges,
 canvas (platform DiagramProvider), stereotype/profile filters.
 
 ## S9 — Ecosystem breadth (pick by value, each optional)
-- **Initializr wizard** (S9.1): new-project/module builder against start.spring.io
-  (public API): language, boot version, packaging, deps search; generates into Gradle/
-  Maven project. Big visibility win, self-contained.
+- **Initializr wizard (S9.1) — ✅ shipped**: File → New → "Spring Boot Project
+  (Initializr)…" — full coordinate/build/version form plus searchable grouped starter list
+  from live start.spring.io metadata (curated fallback offline), generation to disk with
+  zip-slip-guarded extraction and an "Open Project" notification (ProjectManagerEx.openProject;
+  bundled Maven/Gradle importers load it).
 - **Spring Data JPA** (S9.2): repository interface detection (`extends Repository`),
   derived-query parse + validate against entity properties (keyword table from
   spring-data-commons docs), `@Query` presence checks.
