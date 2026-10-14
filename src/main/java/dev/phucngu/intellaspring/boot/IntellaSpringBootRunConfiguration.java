@@ -14,6 +14,7 @@ import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.util.JavaParametersUtil;
 import com.intellij.execution.util.ProgramParametersUtil;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.execution.application.ApplicationConfiguration;
 import org.jdom.Element;
@@ -92,6 +93,11 @@ public class IntellaSpringBootRunConfiguration extends ApplicationConfiguration 
         if (getWorkingDirectory() != null) {
             ProgramParametersUtil.checkWorkingDirectoryExist(this, getProject(), module);
         }
+    }
+
+    @Override
+    public @NotNull SettingsEditor<? extends com.intellij.execution.configurations.RunConfiguration> getConfigurationEditor() {
+        return new IntellaSpringBootSettingsEditor(this);
     }
 
     @Override

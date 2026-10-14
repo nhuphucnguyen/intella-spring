@@ -80,6 +80,22 @@ public class BootRunConfigurationTest extends BasePlatformTestCase {
         assertEquals(java.util.List.of("-Dspring.output.ansi.enabled=always"), minimal.getParameters());
     }
 
+    public void testSettingsEditorRoundTripPreservesBootOptions() throws Exception {
+        var type = ConfigurationTypeUtil.findConfigurationType(IntellaSpringBootConfigurationType.class);
+        var config = new dev.phucngu.intellaspring.boot.IntellaSpringBootRunConfiguration(
+                getProject(), type.getConfigurationFactories()[0], "test");
+        config.setMainClassName("demo.DemoApplication");
+        config.setActiveProfiles("dev, local");
+        config.setHideBanner(false);
+        var editor = new dev.phucngu.intellaspring.boot.IntellaSpringBootSettingsEditor(config);
+        editor.resetFrom(config);
+        editor.applyTo(config);
+        assertEquals("demo.DemoApplication", config.getMainClassName());
+        assertEquals("dev, local", config.getActiveProfiles());
+        assertFalse(config.isHideBanner());
+        editor.dispose();
+    }
+
     public void testSuggestedNameUsesShortClass() {
         var type = ConfigurationTypeUtil.findConfigurationType(IntellaSpringBootConfigurationType.class);
         var config = new IntellaSpringBootRunConfiguration(getProject(), type.getConfigurationFactories()[0], "test");
