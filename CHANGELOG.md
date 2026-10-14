@@ -25,6 +25,8 @@
 - **Profile switcher**: the run editor's Active profiles field gains a "…" button opening
   checkboxes over every profile the project knows — `application-<profile>.*` file names
   and `spring.profiles.active` values — so switching profiles is a two-click affair.
+- **Icon pass**: the two tool windows get dedicated icons (endpoint fan-out, bean pair)
+  instead of sharing the leaf marker.
 
 ## 0.7.0 — Unreleased
 ### Added

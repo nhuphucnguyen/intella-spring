@@ -208,9 +208,9 @@ extended), and the **introduce-bean quick-fix** on "No qualifying bean" (adds
 type chooser, factory method appended, constructor-aware body), and **New ▸ Spring
 @Configuration/@Component Class** file actions (stereotype imported and applied), and the
 **profile switcher** (the run editor's Active profiles "…" button with checkboxes over
-discovered profiles).
-Remaining: XML wiring in the generate menu, icon pass, Productivity Guide stats,
-Kotlin/UAST readiness.
+discovered profiles), and the **icon pass** (dedicated tool window icons).
+Remaining: XML wiring in the generate menu, Productivity Guide stats, Kotlin/UAST
+readiness.
 
 ## Explicit non-goals (v1)
 Spring Cloud/Modulith/Integration graph DSLs, remote/target run, JVM debugger
