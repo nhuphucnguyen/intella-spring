@@ -2,22 +2,15 @@ package dev.phucngu.intellaspring.ui;
 
 import com.intellij.codeInsight.daemon.LineMarkerInfo;
 import com.intellij.codeInsight.daemon.LineMarkerProvider;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleUtilCore;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.popup.JBPopupFactory;
-import com.intellij.openapi.ui.popup.PopupStep;
-import com.intellij.openapi.ui.popup.util.BaseListPopupStep;
 import com.intellij.openapi.editor.markup.GutterIconRenderer;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.project.Project;
 import com.intellij.pom.Navigatable;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiClassType;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiIdentifier;
 import com.intellij.psi.PsiMethod;
-import com.intellij.psi.PsiParameter;
-import com.intellij.psi.util.PsiTreeUtil;
-import com.intellij.ui.awt.RelativePoint;
 import dev.phucngu.intellaspring.spring.SpringAnnotations;
 import dev.phucngu.intellaspring.spring.SpringContextService;
 import dev.phucngu.intellaspring.spring.SpringInjections;
@@ -25,15 +18,12 @@ import dev.phucngu.intellaspring.spring.model.SpringBeanDef;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.Icon;
 import java.awt.event.MouseEvent;
-import java.util.List;
 
 /**
  * The bean leaf in the gutter of stereotype classes and {@code @Bean} methods. Clicking jumps
  * to the injection points of the bean (a single target navigates directly, several open a
- * chooser); S4's autowiring analysis will reuse the same injection locator for the reverse
- * arrows.
+ * chooser); S4's autowiring analysis will reuse the same injection locator for its inspections.
  */
 public class SpringBeanLineMarkerProvider implements LineMarkerProvider {
 
@@ -50,15 +40,11 @@ public class SpringBeanLineMarkerProvider implements LineMarkerProvider {
         if (!beanSite) {
             return null;
         }
-        Module module = ModuleUtilCore.findModuleForPsiElement(element);
+        Module module = MarkerSupport.springModuleOf(element);
         if (module == null) {
             return null;
         }
-        SpringContextService spring = SpringContextService.getInstance(element.getProject());
-        if (!spring.isSpringModule(module)) {
-            return null;
-        }
-        SpringBeanDef bean = spring.beans(module).stream()
+        SpringBeanDef bean = SpringContextService.getInstance(element.getProject()).beans(module).stream()
                 .filter(b -> element.equals(b.sourceElement()))
                 .findFirst()
                 .orElse(null);
@@ -81,34 +67,9 @@ public class SpringBeanLineMarkerProvider implements LineMarkerProvider {
         if (beanType == null) {
             return;
         }
-        List<PsiElement> targets = SpringInjections.injectionPoints(beanType);
-        if (targets.isEmpty()) {
-            // Nothing injects this bean yet; the tooltip already names it. Improves with S4.
-            return;
-        }
-        if (targets.size() == 1) {
-            ((Navigatable) targets.get(0)).navigate(true);
-            return;
-        }
-        JBPopupFactory.getInstance()
-                .createListPopup(new BaseListPopupStep<InjectionTarget>("Injection Points",
-                        targets.stream().map(InjectionTarget::new).toList()) {
-                    @Override
-                    public @NotNull String getTextFor(InjectionTarget target) {
-                        return target.label();
-                    }
-
-                    @Override
-                    public Icon getIconFor(InjectionTarget target) {
-                        return IntellaSpringIcons.BEAN;
-                    }
-
-                    @Override
-                    public PopupStep<?> onChosen(InjectionTarget target, boolean finalChoice) {
-                        return doFinalStep(() -> ((Navigatable) target.element()).navigate(true));
-                    }
-                })
-                .show(new RelativePoint(event));
+        MarkerSupport.navigate(project,
+                SpringInjections.injectionPoints(beanType).stream().map(t -> (Navigatable) t).toList(),
+                event, "Injection Points", n -> MarkerSupport.memberLabel((com.intellij.psi.PsiElement) n));
     }
 
     private static @Nullable PsiClass beanTypeOf(@NotNull PsiElement owner) {
@@ -119,38 +80,5 @@ public class SpringBeanLineMarkerProvider implements LineMarkerProvider {
             return type.resolve();
         }
         return null;
-    }
-
-    /** A chooser entry: the injected member, labeled "Owner.member (kind)". */
-    private record InjectionTarget(@NotNull PsiElement element) implements Navigatable {
-        private @NotNull String label() {
-            if (element instanceof PsiMethod method) {
-                String owner = method.getContainingClass() != null ? method.getContainingClass().getName() + "." : "";
-                return owner + method.getName() + "()";
-            }
-            String owner = containingClassName(element);
-            String name = element instanceof PsiParameter parameter ? parameter.getName() : element.getText();
-            return owner != null ? owner + "." + name : name;
-        }
-
-        private @Nullable String containingClassName(@NotNull PsiElement element) {
-            PsiClass containing = PsiTreeUtil.getParentOfType(element, PsiClass.class, false);
-            return containing != null ? containing.getName() : null;
-        }
-
-        @Override
-        public void navigate(boolean requestFocus) {
-            ((Navigatable) element).navigate(requestFocus);
-        }
-
-        @Override
-        public boolean canNavigate() {
-            return ((Navigatable) element).canNavigate();
-        }
-
-        @Override
-        public boolean canNavigateToSource() {
-            return ((Navigatable) element).canNavigateToSource();
-        }
     }
 }

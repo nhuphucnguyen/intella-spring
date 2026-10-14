@@ -76,6 +76,41 @@ public class SpringInjectionsTest extends BasePlatformTestCase {
         assertEquals("Spring bean: userService", methodMarker.createGutterRenderer().getTooltipText());
     }
 
+    public void testReverseMarkerOnAutowiredFieldLeadsToBean() {
+        com.intellij.psi.PsiClass consumer = findClass("demo.Consumer");
+        com.intellij.psi.PsiField field = consumer.findFieldByName("userService", false);
+        assertNotNull(field);
+        var marker = new dev.phucngu.intellaspring.ui.SpringInjectionLineMarkerProvider()
+                .getLineMarkerInfo(field.getNameIdentifier());
+        assertNotNull("@Autowired field must carry the reverse marker", marker);
+        assertTrue(marker.createGutterRenderer().getTooltipText(),
+                marker.createGutterRenderer().getTooltipText().contains("userService"));
+    }
+
+    public void testXmlBeanTagCarriesMarker() {
+        myFixture.addFileToProject("app.xml", """
+                <beans xmlns="http://www.springframework.org/schema/beans">
+                    <bean id="orderService" class="demo.ReportService"/>
+                </beans>
+                """);
+        var file = (com.intellij.psi.xml.XmlFile) com.intellij.psi.PsiManager.getInstance(getProject())
+                .findFile(myFixture.findFileInTempDir("app.xml"));
+        var tag = file.getRootTag().findSubTags("bean")[0];
+        com.intellij.psi.PsiElement nameToken = null;
+        for (var child : tag.getChildren()) {
+            if (child instanceof com.intellij.psi.xml.XmlToken t
+                    && t.getTokenType() == com.intellij.psi.xml.XmlTokenType.XML_NAME) {
+                nameToken = child;
+                break;
+            }
+        }
+        assertNotNull(nameToken);
+        var marker = new dev.phucngu.intellaspring.ui.SpringXmlBeanLineMarkerProvider()
+                .getLineMarkerInfo(nameToken);
+        assertNotNull("bean tag must carry the gutter icon", marker);
+        assertEquals("Spring bean: orderService", marker.createGutterRenderer().getTooltipText());
+    }
+
     public void testNoGutterMarkerOnPlainClass() {
         var provider = new SpringBeanLineMarkerProvider();
         assertNull("plain class is not a bean", provider.getLineMarkerInfo(findClass("demo.ReportService").getNameIdentifier()));

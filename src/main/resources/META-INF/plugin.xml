@@ -20,6 +20,10 @@
         <projectService serviceImplementation="dev.phucngu.intellaspring.spring.SpringContextService"/>
         <codeInsight.lineMarkerProvider language="JAVA"
                                         implementationClass="dev.phucngu.intellaspring.ui.SpringBeanLineMarkerProvider"/>
+        <codeInsight.lineMarkerProvider language="JAVA"
+                                        implementationClass="dev.phucngu.intellaspring.ui.SpringInjectionLineMarkerProvider"/>
+        <codeInsight.lineMarkerProvider language="XML"
+                                        implementationClass="dev.phucngu.intellaspring.ui.SpringXmlBeanLineMarkerProvider"/>
     </extensions>
 
     <actions>

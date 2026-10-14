@@ -14,3 +14,5 @@
   `@Bean` methods with click-to-navigate to injection points (fields, setters,
   constructors, `@Bean` factory parameters), and Navigate → "Spring Bean…"
   (Ctrl+Alt+Shift+B) chooser over all project beans with speed search.
+- **S2 rest**: reverse gutter marker on @Autowired members/@Bean factory methods leading to
+  the candidate bean declarations, and the bean leaf on XML `<bean>` tags.
