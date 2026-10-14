@@ -149,19 +149,21 @@ public final class EndpointsPanel extends SimpleToolWindowPanel {
         if (toolWindow == null) {
             return;
         }
+        toolWindow.activate(() -> selectWhenReady(project, handler, 8));
+    }
+
+    /**
+     * First activation creates the content (registering the panel) and the first tree fill
+     * runs on a pooled thread — retry briefly until both are done and the row is found.
+     */
+    private static void selectWhenReady(@NotNull Project project, @NotNull PsiMethod handler, int attemptsLeft) {
         EndpointsPanel panel = activePanel(project);
-        if (panel == null) {
-            // first activation creates the content; select once it exists
-            toolWindow.activate(() -> {
-                EndpointsPanel created = activePanel(project);
-                if (created != null) {
-                    created.selectHandler(handler);
-                }
-            });
-            return;
+        boolean found = panel != null && panel.selectHandler(handler);
+        if (!found && attemptsLeft > 0 && !project.isDisposed()) {
+            com.intellij.util.Alarm retry = new com.intellij.util.Alarm(
+                    com.intellij.util.Alarm.ThreadToUse.SWING_THREAD, project);
+            retry.addRequest(() -> selectWhenReady(project, handler, attemptsLeft - 1), 400);
         }
-        toolWindow.activate(null);
-        panel.selectHandler(handler);
     }
 
     private static @Nullable EndpointsPanel activePanel(@NotNull Project project) {
@@ -170,13 +172,16 @@ public final class EndpointsPanel extends SimpleToolWindowPanel {
         }
     }
 
-    private void selectHandler(@NotNull PsiMethod handler) {
+    /** Selects the handler's row once the tree holds it; true when the row was found. */
+    private boolean selectHandler(@NotNull PsiMethod handler) {
         DefaultMutableTreeNode found = findNode(root, handler);
-        if (found != null) {
-            TreePath path = new TreePath(found.getPath());
-            tree.setSelectionPath(path);
-            tree.scrollPathToVisible(path);
+        if (found == null) {
+            return false;
         }
+        TreePath path = new TreePath(found.getPath());
+        tree.setSelectionPath(path);
+        tree.scrollPathToVisible(path);
+        return true;
     }
 
     private static @Nullable DefaultMutableTreeNode findNode(@NotNull DefaultMutableTreeNode node, @NotNull PsiMethod handler) {

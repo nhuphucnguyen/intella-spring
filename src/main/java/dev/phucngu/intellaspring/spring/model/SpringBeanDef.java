@@ -51,4 +51,14 @@ public record SpringBeanDef(
     public boolean matchesName(@NotNull String candidate) {
         return candidate.equals(beanName) || aliases.contains(candidate);
     }
+
+    /**
+     * PSI-free by design: this record reaches Swing renderers (the beans details lists),
+     * which paint outside read actions — the generated record toString would touch
+     * {@code beanType}/{@code sourceElement} and crash the paint.
+     */
+    @Override
+    public String toString() {
+        return "SpringBeanDef[" + displayName() + ", type=" + beanTypeName + ", origin=" + origin + "]";
+    }
 }

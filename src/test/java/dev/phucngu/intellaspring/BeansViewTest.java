@@ -95,4 +95,22 @@ public class BeansViewTest extends BasePlatformTestCase {
                 .map(BeanDependencies.Dependency::siteLabel).toList();
         assertTrue(labels.toString(), labels.contains("OrderClient.userService"));
     }
+
+    /**
+     * Regression: Swing list renderers call toString() during paint, outside read actions.
+     * The generated record toString touched the PsiType component and crashed the IDE
+     * ("Read access is allowed from inside read-action only", 28 SEVERE entries blaming
+     * the plugin). toString must be callable from a background thread with no read access.
+     */
+    public void testToStringIsCallableWithoutReadAccess() throws Exception {
+        SpringBeanDef userService = byName(pool(), "userService");
+        // Dependency.toString chains SpringBeanDef.toString — exercise both on a bare thread
+        BeanDependencies.Dependency dependency = BeanDependencies.injectedInto(userService, pool()).get(0);
+        java.util.concurrent.Future<?> task = java.util.concurrent.CompletableFuture.runAsync(
+                () -> {
+                    assertNotNull(userService.toString());
+                    assertNotNull(dependency.toString());
+                });
+        task.get(10, java.util.concurrent.TimeUnit.SECONDS);
+    }
 }
