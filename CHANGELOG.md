@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.0 — Unreleased
+### Added
+- **@Value placeholder inspection** (S9.4 slice): `${key}` in `@Value` must exist in the
+  configuration metadata or carry an in-line default — unresolved keys are warned about,
+  adaptively (no metadata on the classpath ⇒ nothing flagged).
+- **@Scheduled cron validation** (S9.5): six-field Spring cron with lists/ranges/steps,
+  L/W/# day markers, month/day names, `@`-macros and "-" (disabled) — typos surface in the
+  editor instead of at the first scheduled run.
 ## 0.5.0 — Unreleased
 ### Added
 - **S9.2 Spring Data derived-query inspection**: repository interfaces are detected through

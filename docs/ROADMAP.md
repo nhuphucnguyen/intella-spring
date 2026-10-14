@@ -190,8 +190,10 @@ canvas (platform DiagramProvider), stereotype/profile filters.
   checks, `<sec:intercept-url>` pattern/attribute assist.
 - **SpEL** (S9.4): expression tokenizer/parser for `@Value("#{…}")`, security
   expressions, property refs inside SpEL — feeds S4/S9.3.
-- **Scheduled** (S9.5): cron string completion/validation for `@Scheduled`
-  (IDEA ships a whole cron module; ours is a checker + completion).
+- **Scheduled (S9.5) — ✅ shipped**: cron validation for `@Scheduled` (six fields, lists,
+  ranges, steps, L/W/# markers, names, macros, "-"). Deferred: cron completion.
+  Also shipped as an S9.4 slice: the **@Value placeholder inspection** against the
+  configuration metadata (adaptive, default-aware).
 
 ## S10 — Polish & parity sweep
 - Intentions: inject field → constructor injection; introduce bean for field;

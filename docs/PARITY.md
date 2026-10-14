@@ -15,7 +15,7 @@ Legend: ✅ shipped · 🔨 milestone assigned · ❌ not planned in v1.
 | XML↔Java bean navigation | ✅ | ✅ (XML ref → Java bean, class attr ⇄ Java, gutter both sides) | S3 |
 | XML live/file templates | 9 template sets | 🔨 subset, own wording | S3 |
 | **Autowiring analysis** | unresolved/ambiguous/qualifier quick-fixes | ✅ raw-type + qualifiers + @Primary (generics, @Value → later) | S4 |
-| `${placeholder}` references | ✅ | 🔨 | S4 |
+| `${placeholder}` references | ✅ | ✅ @Value placeholder inspection (properties-file side later) | S4/S9 |
 | SpEL `#{…}` references | dedicated module | 🔨 later (S9.4) | S9 |
 | Profiles (active per context) | ✅ + switcher action | 🔨 model-level ✅, switcher S10 | S1/S10 |
 | **Boot run config** | profiles/banner/optimization/devtools restart | ✅ profiles/banner/optimization + producer (devtools/actuator tabs → S5.2) | S5 |
@@ -32,7 +32,7 @@ Legend: ✅ shipped · 🔨 milestone assigned · ❌ not planned in v1.
 | **Initializr wizard** | ✅ | ✅ wizard + live start.spring.io metadata + offline fallback | S9.1 |
 | Spring Data derived queries | ✅ (ORM EPs) | ✅ property-path validation + repo/domain detection | S9.2 |
 | Security SpEL checks | ✅ | 🔨 | S9.3 |
-| Cron completion (@Scheduled) | ✅ (cron module) | 🔨 | S9.5 |
+| Cron validation (@Scheduled) | ✅ (cron module) | ✅ validation (completion later) | S9.5 |
 | Kotlin support | ✅ (spring.kotlin) | 🔨 UAST-ready pieces only | S10 |
 | Cloud/Modulith/Integration/Webflow | ✅ | ❌ v1 |
 | JPA/ORM metamodel validation | ✅ | ❌ v1 (structure checks only) |

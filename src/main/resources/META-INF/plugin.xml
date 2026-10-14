@@ -46,6 +46,12 @@
         <localInspection implementationClass="dev.phucngu.intellaspring.inspection.SpringJpaDerivedQueryInspection"
                          language="JAVA" shortName="SpringJpaDerivedQuery" displayName="Spring Data derived query problems"
                          groupPath="Java" groupName="Spring" enabledByDefault="true" level="ERROR"/>
+        <localInspection implementationClass="dev.phucngu.intellaspring.inspection.SpringValuePlaceholderInspection"
+                         language="JAVA" shortName="SpringValuePlaceholder" displayName="Unresolved @Value placeholder"
+                         groupPath="Java" groupName="Spring" enabledByDefault="true" level="WARNING"/>
+        <localInspection implementationClass="dev.phucngu.intellaspring.inspection.SpringScheduledCronInspection"
+                         language="JAVA" shortName="SpringScheduledCron" displayName="Invalid @Scheduled cron expression"
+                         groupPath="Java" groupName="Spring" enabledByDefault="true" level="WARNING"/>
         <configurationType implementation="dev.phucngu.intellaspring.boot.IntellaSpringBootConfigurationType"/>
         <runConfigurationProducer implementation="dev.phucngu.intellaspring.boot.IntellaSpringBootRunConfigurationProducer"/>
         <localInspection implementationClass="dev.phucngu.intellaspring.inspection.SpringAutowiringInspection"
