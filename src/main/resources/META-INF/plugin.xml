@@ -90,6 +90,18 @@
                 description="Generate a new Spring Boot project from start.spring.io">
             <add-to-group group-id="NewGroup" anchor="first"/>
         </action>
+        <action id="IntellaSpring.NewConfigurationClass"
+                class="dev.phucngu.intellaspring.generate.NewSpringClassAction$Configuration"
+                text="Spring @Configuration Class"
+                description="Create a class annotated with @Configuration">
+            <add-to-group group-id="NewGroup" anchor="first"/>
+        </action>
+        <action id="IntellaSpring.NewComponentClass"
+                class="dev.phucngu.intellaspring.generate.NewSpringClassAction$Component"
+                text="Spring @Component Class"
+                description="Create a class annotated with @Component">
+            <add-to-group group-id="NewGroup" anchor="first"/>
+        </action>
     </actions>
 
     <projectListeners>

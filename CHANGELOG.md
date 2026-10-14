@@ -19,6 +19,9 @@
   method is appended — `return new X();` for default-constructible types, a
   `return null; // TODO construct X` marker otherwise, with 2/3/… suffixing on name
   clashes.
+- **New ▸ Spring @Configuration Class / Spring @Component Class** (project view on a
+  source directory): prompts for a name and creates the class with the stereotype
+  imported and applied — no hand-writing the annotation import on a fresh project.
 
 ## 0.7.0 — Unreleased
 ### Added
