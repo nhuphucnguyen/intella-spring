@@ -18,8 +18,8 @@ Legend: ✅ shipped · 🔨 milestone assigned · ❌ not planned in v1.
 | `${placeholder}` references | ✅ | 🔨 | S4 |
 | SpEL `#{…}` references | dedicated module | 🔨 later (S9.4) | S9 |
 | Profiles (active per context) | ✅ + switcher action | 🔨 model-level ✅, switcher S10 | S1/S10 |
-| **Boot run config** | profiles/banner/optimization/devtools restart | 🔨 | S5 |
-| Producer + main-class validation | ✅ | 🔨 | S5 |
+| **Boot run config** | profiles/banner/optimization/devtools restart | ✅ profiles/banner/optimization + producer (devtools/actuator tabs → S5.2) | S5 |
+| Producer + main-class validation | ✅ | ✅ | S5 |
 | Endpoints & Beans tabs (JMX/actuator) | ✅ | 🔨 endpoints+beans tabs | S5 |
 | Update on frame deactivation | ✅ | 🔨 | S5 |
 | **Config metadata completion** | properties + yml via microservices.jvm | 🔨 own parser + contributors | S6 |

@@ -29,6 +29,8 @@
         <completion.contributor language="XML"
                                 implementationClass="dev.phucngu.intellaspring.xml.SpringXmlCompletionContributor"/>
         <internalFileTemplate name="spring-beans.xml"/>
+        <configurationType implementation="dev.phucngu.intellaspring.boot.IntellaSpringBootConfigurationType"/>
+        <runConfigurationProducer implementation="dev.phucngu.intellaspring.boot.IntellaSpringBootRunConfigurationProducer"/>
         <localInspection implementationClass="dev.phucngu.intellaspring.inspection.SpringAutowiringInspection"
                          language="JAVA" shortName="SpringAutowiringInspection" suppressId="SpringAutowiringInspection"
                          displayName="Spring autowiring problems" groupPath="Java" groupName="Spring"

@@ -22,3 +22,6 @@
 - **S4 autowiring analysis**: Spring autowiring inspection — unresolved injection errors with
   a required=false quick-fix, ambiguity errors with per-candidate @Qualifier quick-fixes;
   @Primary/@Qualifier narrowing; @Bean factory parameters included.
+- **S5 Spring Boot run configuration**: "Intella Spring Boot" run type with Boot launch
+  conventions (launch optimization, banner off, active profiles, ANSI always), @SpringBootApplication
+  meta-chain validation, and context-based producer (gutter Run on any Boot main class).

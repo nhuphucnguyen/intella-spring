@@ -101,7 +101,18 @@ placeholder analysis (needs the properties index from S6), generics-aware matchi
   files + `@ConfigurationProperties` prefixes (string-level; SpEL `#{…}` later).
 - Editor banner: "Spring context not fully indexed" / missing context notifications.
 
-## S5 — Spring Boot run configuration
+## S5 — Spring Boot run configuration — ✅ shipped (core)
+
+Delivered: "Intella Spring Boot" configuration type (an ApplicationConfiguration subclass, so
+the stock Java editor and everything downstream works) with Boot launch conventions applied as
+VM parameters exactly like IDEA's gated plugin — `-XX:TieredStopAtLevel=1` launch optimization,
+`-Dspring.main.banner-mode=OFF`, `-Dspring.profiles.active=<profiles>`,
+`-Dspring.output.ansi.enabled=always` — persisted per configuration (profiles/banner/optimization
+fields, XML attributes). Validation requires a main method on a class that is
+`@SpringBootApplication` through the meta chain (`SpringBootApplicationDetector`). A
+RunConfigurationProducer fills the configuration from any Boot main class via gutter Run /
+Run-with menus. Deferred to S5.2: actuator/JMX tabs (endpoints, live beans), devtools
+frame-deactivation update policy, dedicated options UI (S10 fragments).
 - Boot main-class detection: `@SpringBootApplication` meta-annotation aware; validation
   (has `main`), `JavaRunConfigurationProducerBase`-style producer + gutter run icon.
 - `IntellaSpringBootRunConfigurationType` on top of `ApplicationConfiguration`:
