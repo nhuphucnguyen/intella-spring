@@ -11,8 +11,8 @@ Legend: ✅ shipped · 🔨 milestone assigned · ❌ not planned in v1.
 | **Gutter** | bean icon, injection arrows, merged markers | ✅ bean icon + injection nav (arrows on injection points → S2 rest) | S2 |
 | Go to Spring Bean | ✅ | ✅ (Ctrl+Alt+Shift+B, Navigate menu) | S2 |
 | Bean find-usages / rename | ✅ | 🔨 | S2 |
-| **XML config** | DOM completion, refs, p:/c:, custom namespaces | 🔨 beans schema + p:/c: + context: | S3 |
-| XML↔Java bean navigation | ✅ | 🔨 | S3 |
+| **XML config** | DOM completion, refs, p:/c:, custom namespaces | ✅ refs+completion (p:-ref; p:/c: values, custom namespaces → later) | S3 |
+| XML↔Java bean navigation | ✅ | ✅ (XML ref → Java bean, class attr ⇄ Java, gutter both sides) | S3 |
 | XML live/file templates | 9 template sets | 🔨 subset, own wording | S3 |
 | **Autowiring analysis** | unresolved/ambiguous/qualifier quick-fixes | 🔨 raw-type + qualifiers first | S4 |
 | `${placeholder}` references | ✅ | 🔨 | S4 |

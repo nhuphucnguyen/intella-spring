@@ -16,3 +16,6 @@
   (Ctrl+Alt+Shift+B) chooser over all project beans with speed search.
 - **S2 rest**: reverse gutter marker on @Autowired members/@Bean factory methods leading to
   the candidate bean declarations, and the bean leaf on XML `<bean>` tags.
+- **S3 XML support**: bean-name references (red when unresolved, completion with origins)
+  across ref/`<ref>`/`p:*-ref`, soft class navigation, property-name completion from bean
+  setters, spring-beans.xml file template.

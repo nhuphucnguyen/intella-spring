@@ -2,8 +2,6 @@ package dev.phucngu.intellaspring.ui;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
@@ -65,13 +63,6 @@ public class GoToSpringBeanAction extends AnAction {
     }
 
     private static @NotNull List<SpringBeanDef> beans(@NotNull Project project) {
-        SpringContextService spring = SpringContextService.getInstance(project);
-        List<SpringBeanDef> all = new ArrayList<>();
-        for (Module module : ModuleManager.getInstance(project).getModules()) {
-            if (spring.isSpringModule(module)) {
-                all.addAll(spring.beans(module));
-            }
-        }
-        return all;
+        return SpringContextService.getInstance(project).allBeans();
     }
 }

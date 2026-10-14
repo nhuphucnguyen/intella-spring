@@ -60,7 +60,16 @@ with "Injected by Spring" tooltip, chooser over candidate beans) and the bean le
 - "Go to Spring Bean" action (symbol chooser over the model) + keymap registration.
 - Rename: bean rename keeps injection points in sync (Java side first).
 
-## S3 — XML configuration support
+## S3 — XML configuration support — ✅ shipped (reference-based v1)
+
+Delivered: bean-name references across XML and Java — `ref="…"` on property/constructor-arg,
+`<ref bean="…"/>`, and `p:x-ref="…"` attributes resolve against the unified model (an XML ref
+can target an annotation-declared bean and vice versa), unknown names show red; `class="…"`
+on `<bean>` navigates softly; `<property name="…">` completes from the bean class's setters
+(JavaBeans decapitalization); "spring-beans.xml" internal file template. **Design note:** v1
+uses classic XML reference/completion contributors instead of a DOM model — same user-visible
+behavior, and the DOM layer stays available if rename-refactoring needs it later. Deferred to
+S4+: `p:`/`c:` value completion, factory-bean/method typing, parent-bean inheritance.
 - DOM model for spring-beans schema (`<beans>`, `<bean>`, `<property>`,
   `<constructor-arg>`, `<alias>`, `<import>`): class completion, bean-ref completion +
   resolve (red when unknown), property-name completion from the bean class PSI,

@@ -8,6 +8,7 @@ import dev.phucngu.intellaspring.spring.model.SpringBeanDef;
 import dev.phucngu.intellaspring.spring.model.SpringBeanScanner;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -42,6 +43,15 @@ public final class SpringContextService {
 
     public @NotNull List<SpringBeanDef> beans(@NotNull Module module) {
         return snapshot(module).beans();
+    }
+
+    /** Every bean in every Spring module of the project — the pool references complete against. */
+    public @NotNull List<SpringBeanDef> allBeans() {
+        List<SpringBeanDef> all = new ArrayList<>();
+        for (Module module : com.intellij.openapi.module.ModuleManager.getInstance(project).getModules()) {
+            all.addAll(beans(module));
+        }
+        return all;
     }
 
     private @NotNull Snapshot snapshot(@NotNull Module module) {
