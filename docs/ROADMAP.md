@@ -199,13 +199,13 @@ canvas (platform DiagramProvider), stereotype/profile filters.
 Shipped: the run editor's **main-class picker** (searchable chooser over all Boot
 applications with main methods; empty state explains itself), the **endpoint gutter
 marker** on handler methods revealing the handler in the Spring Endpoints tool window,
-and the **constructor-injection intention** (Alt+Enter on an `@Autowired`/`@Inject`
+the **constructor-injection intention** (Alt+Enter on an `@Autowired`/`@Inject`
 field: all injection fields become final constructor parameters, `@Qualifier` travels
 along, `@Resource`/`@Value`/static/initialized fields excluded, single-existing-constructor
-extended).
-Remaining: introduce-bean intention, generate menu (XML wiring, new
-@Configuration/@Component file), profile switcher, icon pass,
-Productivity Guide stats, Kotlin/UAST readiness.
+extended), and the **introduce-bean quick-fix** on "No qualifying bean" (adds
+@Component/@Service/@Repository to a concrete project class and clears the error).
+Remaining: generate menu (XML wiring, new @Configuration/@Component file), profile
+switcher, icon pass, Productivity Guide stats, Kotlin/UAST readiness.
 
 ## Explicit non-goals (v1)
 Spring Cloud/Modulith/Integration graph DSLs, remote/target run, JVM debugger

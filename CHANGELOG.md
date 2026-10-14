@@ -10,6 +10,10 @@
   fields are left alone, and the action stays away from enums, Lombok
   `@RequiredArgsConstructor` classes and classes that already inject via an `@Autowired`
   constructor.
+- **Introduce-bean quick-fix**: "No qualifying bean of type 'X' found" now also offers
+  "Register 'X' as a Spring bean (@Component)" when X is a concrete project class without
+  a stereotype — `@Service`/`@Repository` picked by name, and applying the fix clears the
+  error immediately.
 
 ## 0.7.0 — Unreleased
 ### Added

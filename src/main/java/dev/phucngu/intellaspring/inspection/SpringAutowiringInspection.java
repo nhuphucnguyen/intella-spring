@@ -85,9 +85,12 @@ public class SpringAutowiringInspection extends LocalInspectionTool {
                 classType, qualifier, SpringContextService.getInstance(holder.getProject()).allBeans());
         if (candidates.isEmpty()) {
             if (isRequired(member)) {
+                LocalQuickFix[] fixes = IntroduceBeanFix.eligible(injected)
+                        ? new LocalQuickFix[]{new IntroduceBeanFix(injected), new SetRequiredFalseFix(member)}
+                        : new LocalQuickFix[]{new SetRequiredFalseFix(member)};
                 holder.registerProblem(toMark,
                         "No qualifying bean of type '" + fqn + "' found",
-                        new SetRequiredFalseFix(member));
+                        fixes);
             }
             return;
         }
