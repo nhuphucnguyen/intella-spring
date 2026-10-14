@@ -29,6 +29,16 @@
         <completion.contributor language="XML"
                                 implementationClass="dev.phucngu.intellaspring.xml.SpringXmlCompletionContributor"/>
         <internalFileTemplate name="spring-beans.xml"/>
+        <projectService serviceImplementation="dev.phucngu.intellaspring.config.SpringConfigMetadataService"/>
+        <completion.contributor language="Properties"
+                                implementationClass="dev.phucngu.intellaspring.config.SpringPropertiesCompletionContributor"/>
+        <completion.contributor language="yaml"
+                                implementationClass="dev.phucngu.intellaspring.config.SpringYamlCompletionContributor"/>
+        <lang.documentationProvider language="Properties"
+                                    implementationClass="dev.phucngu.intellaspring.config.SpringConfigKeyDocumentationProvider"/>
+        <localInspection implementationClass="dev.phucngu.intellaspring.config.SpringUnknownConfigKeyInspection"
+                         language="Properties" shortName="SpringUnknownConfigKey" displayName="Unknown Spring Boot configuration key"
+                         groupPath="Java" groupName="Spring" enabledByDefault="true" level="WARNING"/>
         <configurationType implementation="dev.phucngu.intellaspring.boot.IntellaSpringBootConfigurationType"/>
         <runConfigurationProducer implementation="dev.phucngu.intellaspring.boot.IntellaSpringBootRunConfigurationProducer"/>
         <localInspection implementationClass="dev.phucngu.intellaspring.inspection.SpringAutowiringInspection"

@@ -22,8 +22,8 @@ Legend: ✅ shipped · 🔨 milestone assigned · ❌ not planned in v1.
 | Producer + main-class validation | ✅ | ✅ | S5 |
 | Endpoints & Beans tabs (JMX/actuator) | ✅ | 🔨 endpoints+beans tabs | S5 |
 | Update on frame deactivation | ✅ | 🔨 | S5 |
-| **Config metadata completion** | properties + yml via microservices.jvm | 🔨 own parser + contributors | S6 |
-| Deprecated keys, docs, unknown-key inspection | ✅ | 🔨 | S6 |
+| **Config metadata completion** | properties + yml via microservices.jvm | ✅ own parser + completion (value hints/@ConfigurationProperties → later) | S6 |
+| Deprecated keys, docs, unknown-key inspection | ✅ | ✅ (properties side; yaml docs → later) | S6 |
 | @ConfigurationProperties key gen + navigation | ✅ | 🔨 | S6 |
 | **MVC** | endpoints provider, mapping gutter, view resolvers | 🔨 own model + gutter + tool window | S7 |
 | Ambiguous mapping inspection | ✅ | 🔨 | S7 |

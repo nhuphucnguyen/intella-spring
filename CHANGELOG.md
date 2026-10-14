@@ -25,3 +25,7 @@
 - **S5 Spring Boot run configuration**: "Intella Spring Boot" run type with Boot launch
   conventions (launch optimization, banner off, active profiles, ANSI always), @SpringBootApplication
   meta-chain validation, and context-based producer (gutter Run on any Boot main class).
+- **S6 configuration metadata**: spring-configuration-metadata.json parser + discovery from
+  module resources and library jars; application.properties key completion with type/default
+  tails and deprecation strikeout, quick docs, unknown-key inspection; application.yml
+  nesting-aware next-segment key completion.

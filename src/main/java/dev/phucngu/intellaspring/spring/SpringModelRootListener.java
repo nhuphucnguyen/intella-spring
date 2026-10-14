@@ -15,6 +15,7 @@ public class SpringModelRootListener implements ModuleRootListener {
         Project project = event.getProject();
         if (!project.isDisposed()) {
             SpringContextService.getInstance(project).invalidate();
+            dev.phucngu.intellaspring.config.SpringConfigMetadataService.getInstance(project).invalidate();
         }
     }
 }

@@ -124,7 +124,16 @@ frame-deactivation update policy, dedicated options UI (S10 fragments).
 - Update policy: frame-deactivation → devtools trigger-file restart or hot-swap choice.
 - Services/Run integration: show running apps with live server port + context URL.
 
-## S6 — Configuration metadata intelligence
+## S6 — Configuration metadata intelligence — ✅ shipped (core)
+
+Delivered: own parser for spring-configuration-metadata.json (public format; no gated
+microservices.jvm) feeding `SpringConfigMetadataService` (module resources + every library jar
+on each module's classpath, PSI-tracker cached, root-invalidated). application.properties gets
+whole-key completion with type/default tails and deprecation strikeout, quick documentation
+(type/default/description), and the unknown-key inspection (first-segment adaptive, custom keys
+spared). application*.yml gets nesting-aware next-segment completion. Deferred: value completion
+from metadata hints (enums/durations/log levels), @ConfigurationProperties-derived keys,
+YAML-side documentation and inspection.
 - Parser for `spring-configuration-metadata.json` +
   `additional-spring-configuration-metadata.json` from module classpath jars (public
   format; IDEA's parser is the reference). Own `ConfigKey` model (name, type, default,
