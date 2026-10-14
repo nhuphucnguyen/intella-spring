@@ -10,3 +10,7 @@
   meta-annotation chain, so custom stereotypes and `@SpringBootApplication` both work),
   `@Bean` methods, and XML `<bean>` declarations; `SpringContextService` answers
   is-Spring-module and beans-per-module with PSI-tracker caching.
+- **S2 first slice (user-visible)**: bean-leaf gutter icon on stereotype classes and
+  `@Bean` methods with click-to-navigate to injection points (fields, setters,
+  constructors, `@Bean` factory parameters), and Navigate → "Spring Bean…"
+  (Ctrl+Alt+Shift+B) chooser over all project beans with speed search.

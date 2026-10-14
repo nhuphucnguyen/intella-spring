@@ -43,7 +43,15 @@ One model interface for beans regardless of origin:
 - Tests: fixture classes annotated with Spring FQNs (no Spring jars needed at test time);
   XML fixtures.
 
-## S2 — Gutter & navigation
+## S2 — Gutter & navigation (first slice shipped — see below)
+
+Delivered so far: the bean-leaf gutter icon on stereotype classes and `@Bean` methods
+(`SpringBeanLineMarkerProvider`, JAVA language), click-to-navigate to injection points
+(`SpringInjections`: `@Autowired` fields/setters/constructors, `@Bean` factory parameters;
+single target jumps directly, several open a labeled chooser), and **Navigate → Spring
+Bean…** (`IntellaSpring.GoToBean`, Ctrl+Alt+Shift+B) — a speed-searchable chooser over every
+bean the model knows in the project. Remaining in S2: XML-side markers, the reverse arrows
+on injection points, merged markers, find-usages/rename integration.
 - Line markers: bean icon on stereotype classes / @Bean methods / XML beans (nav to
   injections), arrow markers on `@Autowired` members (nav to bean declaration), with
   merge behavior like IDEA's (multiple targets → popup).

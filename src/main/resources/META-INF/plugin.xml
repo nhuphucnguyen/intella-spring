@@ -18,7 +18,19 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <projectService serviceImplementation="dev.phucngu.intellaspring.spring.SpringContextService"/>
+        <codeInsight.lineMarkerProvider language="JAVA"
+                                        implementationClass="dev.phucngu.intellaspring.ui.SpringBeanLineMarkerProvider"/>
     </extensions>
+
+    <actions>
+        <action id="IntellaSpring.GoToBean"
+                class="dev.phucngu.intellaspring.ui.GoToSpringBeanAction"
+                text="Spring Bean..."
+                description="Jump to a Spring bean definition in this project">
+            <add-to-group group-id="GoToMenu" anchor="first"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt shift B"/>
+        </action>
+    </actions>
 
     <projectListeners>
         <listener class="dev.phucngu.intellaspring.spring.SpringModelRootListener"

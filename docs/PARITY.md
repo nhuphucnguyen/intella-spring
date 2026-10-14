@@ -8,8 +8,8 @@ Legend: ✅ shipped · 🔨 milestone assigned · ❌ not planned in v1.
 | **Bean model** | CommonSpringBean over XML DOM + JAM + custom namespaces | ✅ unified `SpringBeanDef` (stereotypes, @Bean, XML) | S1 |
 | Contexts | SpringFacet + named file sets + profiles | ✅ module-with-Spring = one context (facet later) | S1 |
 | Custom stereotypes via meta-@Component | ✅ | ✅ | S1 |
-| **Gutter** | bean icon, injection arrows, merged markers | 🔨 | S2 |
-| Go to Spring Bean | ✅ | 🔨 | S2 |
+| **Gutter** | bean icon, injection arrows, merged markers | ✅ bean icon + injection nav (arrows on injection points → S2 rest) | S2 |
+| Go to Spring Bean | ✅ | ✅ (Ctrl+Alt+Shift+B, Navigate menu) | S2 |
 | Bean find-usages / rename | ✅ | 🔨 | S2 |
 | **XML config** | DOM completion, refs, p:/c:, custom namespaces | 🔨 beans schema + p:/c: + context: | S3 |
 | XML↔Java bean navigation | ✅ | 🔨 | S3 |

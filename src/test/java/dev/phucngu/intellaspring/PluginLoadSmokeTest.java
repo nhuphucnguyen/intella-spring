@@ -13,4 +13,9 @@ public class PluginLoadSmokeTest extends BasePlatformTestCase {
         assertNotNull("intella-spring plugin must load in the test IDE", plugin);
         assertTrue("intella-spring plugin must be enabled", plugin.isEnabled());
     }
+
+    public void testGoToBeanActionIsRegistered() {
+        assertNotNull("Go to Spring Bean action must be registered",
+                com.intellij.openapi.actionSystem.ActionManager.getInstance().getAction("IntellaSpring.GoToBean"));
+    }
 }
