@@ -1,0 +1,21 @@
+<html>
+<body>
+Converts field injection to constructor injection: every <code>@Autowired</code> or
+<code>@Inject</code> field in the class becomes a <code>final</code> constructor parameter
+assigned in the constructor. A new constructor is created after the last field, or the
+existing single constructor is extended. A <code>@Qualifier</code> on the field travels to
+the parameter.
+<p>
+Fields that are not moved: <code>@Resource</code> (name-based lookup),
+<code>@Value</code> (configuration, not bean injection), <code>static</code> fields and
+fields with initializers. The action is not offered for enums, for classes with a Lombok
+<code>@RequiredArgsConstructor</code>, or when several constructors already exist and the
+choice of target would be ambiguous.
+</p>
+<!-- tooltip end -->
+<p>
+Constructor injection keeps dependencies immutable and makes classes testable without a
+Spring context — this is the style the Spring team recommends for new code.
+</p>
+</body>
+</html>
