@@ -62,6 +62,10 @@ public class GoToSpringBeanAction extends AnAction {
                 .showInFocusCenter();
     }
 
+    /** A chooser entry with its label already computed — safe to read during paint. */
+    private record BeanEntry(@NotNull String label, @NotNull Navigatable target) {
+    }
+
     private static @NotNull List<SpringBeanDef> beans(@NotNull Project project) {
         return SpringContextService.getInstance(project).allBeans();
     }

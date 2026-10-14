@@ -53,7 +53,11 @@ public final class MarkerSupport {
                 .toList();
     }
 
-    /** Navigate to a single target directly; several open a titled chooser with bean icons. */
+    /**
+     * Navigate to a single target directly; several open a titled chooser with bean icons.
+     * Labels are computed eagerly, under the caller's read action — the popup renders rows
+     * lazily during paint and must never touch PSI from there.
+     */
     public static void navigate(@NotNull Project project, @NotNull List<? extends Navigatable> targets,
                                 @NotNull MouseEvent event, @NotNull String title,
                                 @NotNull Function<Navigatable, String> label) {
@@ -64,24 +68,30 @@ public final class MarkerSupport {
             targets.get(0).navigate(true);
             return;
         }
+        List<LabeledTarget> entries = com.intellij.openapi.application.ReadAction.compute(() ->
+                targets.stream().map(t -> new LabeledTarget(t, label.apply(t))).toList());
         JBPopupFactory.getInstance()
-                .createListPopup(new BaseListPopupStep<Navigatable>(title, targets) {
+                .createListPopup(new BaseListPopupStep<>(title, entries) {
                     @Override
-                    public @NotNull String getTextFor(Navigatable target) {
-                        return label.apply(target);
+                    public @NotNull String getTextFor(LabeledTarget target) {
+                        return target.label();
                     }
 
                     @Override
-                    public Icon getIconFor(Navigatable target) {
+                    public Icon getIconFor(LabeledTarget target) {
                         return IntellaSpringIcons.BEAN;
                     }
 
                     @Override
-                    public PopupStep<?> onChosen(Navigatable target, boolean finalChoice) {
-                        return doFinalStep(() -> target.navigate(true));
+                    public PopupStep<?> onChosen(LabeledTarget target, boolean finalChoice) {
+                        return doFinalStep(() -> target.target().navigate(true));
                     }
                 })
                 .show(new RelativePoint(event));
+    }
+
+    /** A chooser entry with its label already computed — safe to read during paint. */
+    public record LabeledTarget(@NotNull Navigatable target, @NotNull String label) {
     }
 
     /**
@@ -93,16 +103,24 @@ public final class MarkerSupport {
         if (beanType == null) {
             return;
         }
-        java.util.List<PsiElement> targets = new java.util.ArrayList<>(SpringInjections.injectionPoints(beanType));
+        // the gutter handler may run outside a read action; PSI search requires one
+        java.util.List<PsiElement> targets = com.intellij.openapi.application.ReadAction.compute(() -> {
+            java.util.List<PsiElement> found = new java.util.ArrayList<>(SpringInjections.injectionPoints(beanType));
+            return found;
+        });
         String title = "Injection Points";
         if (targets.isEmpty()) {
             title = "Usages";
-            for (PsiReference reference : ReferencesSearch.search(beanType)) {
-                PsiMember member = PsiTreeUtil.getParentOfType(reference.getElement(), PsiMember.class, false);
-                if (member != null) {
-                    targets.add(member);
+            targets = com.intellij.openapi.application.ReadAction.compute(() -> {
+                java.util.List<PsiElement> usages = new java.util.ArrayList<>();
+                for (PsiReference reference : ReferencesSearch.search(beanType)) {
+                    PsiMember member = PsiTreeUtil.getParentOfType(reference.getElement(), PsiMember.class, false);
+                    if (member != null) {
+                        usages.add(member);
+                    }
                 }
-            }
+                return usages;
+            });
         }
         if (targets.isEmpty()) {
             new Notification("IntellaSpring", "Spring bean '" + beanName + "'",
