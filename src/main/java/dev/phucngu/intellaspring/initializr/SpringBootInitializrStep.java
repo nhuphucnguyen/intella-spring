@@ -10,7 +10,6 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.CheckBoxList;
 import com.intellij.ui.dsl.builder.Panel;
-import com.intellij.ui.dsl.builder.RowLayout;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComboBox;
@@ -21,11 +20,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 
 import kotlin.Unit;
 
@@ -47,16 +44,19 @@ final class SpringBootInitializrStep extends AbstractNewProjectWizardStep {
     private final JTextField artifactField = new JTextField("demo");
     private final JTextField packageField = new JTextField("com.example.demo");
     private final JTextField descriptionField = new JTextField();
-    private final JTextField filterField = new JTextField();
-    private final CheckBoxList<String> dependenciesList = new CheckBoxList<>();
+    private final JTextField filterField = new JTextField(30);
+    private final CheckBoxList<String> dependenciesList = new CheckBoxList<>(this::onToggle);
+    private final JLabel selectedSummary = new JLabel("No dependencies selected");
     private final JLabel metadataStatus = new JLabel("Loading metadata from start.spring.io…");
 
+    private final DependencySelectionModel selection = new DependencySelectionModel();
     private InitializrModels.Metadata metadata = InitializrModels.fallback();
     private final Map<String, String> typeNameToId = new HashMap<>();
 
     SpringBootInitializrStep(@NotNull NewProjectWizardBaseStep base) {
         super(base);
         this.base = base;
+        dependenciesList.setVisibleRowCount(10);
         fillFromMetadata();
         loadMetadataInBackground();
         filterField.getDocument().addDocumentListener(new FilterListener());
@@ -72,15 +72,12 @@ final class SpringBootInitializrStep extends AbstractNewProjectWizardStep {
         panel.row("Description:", row -> { row.cell(descriptionField); return Unit.INSTANCE; });
         panel.row("Java:", row -> { row.cell(javaCombo); return Unit.INSTANCE; });
         panel.row("Packaging:", row -> { row.cell(packagingCombo); return Unit.INSTANCE; });
-        panel.row("Filter dependencies:", row -> {
-            row.layout(RowLayout.PARENT_GRID);
-            row.cell(filterField);
-            return Unit.INSTANCE;
-        });
-        panel.row("", row -> {
+        panel.row("Filter:", row -> { row.cell(filterField); return Unit.INSTANCE; });
+        panel.row("Dependencies:", row -> {
             row.cell(new com.intellij.ui.components.JBScrollPane(dependenciesList));
             return Unit.INSTANCE;
         });
+        panel.row("Selected:", row -> { row.cell(selectedSummary); return Unit.INSTANCE; });
         panel.row("", row -> { row.cell(metadataStatus); return Unit.INSTANCE; });
     }
 
@@ -142,7 +139,7 @@ final class SpringBootInitializrStep extends AbstractNewProjectWizardStep {
                 packageField.getText().trim(),
                 packaging,
                 (String) javaCombo.getSelectedItem(),
-                dependenciesList.getCheckedItems());
+                selection.selectedIds());
     }
 
     static @NotNull String sanitize(@NotNull String raw) {
@@ -190,6 +187,7 @@ final class SpringBootInitializrStep extends AbstractNewProjectWizardStep {
         packagingCombo.removeAllItems();
         packagingCombo.addItem("Jar");
         packagingCombo.addItem("War");
+        selection.setCatalog(metadata.groups());
         applyDependencyFilter();
     }
 
@@ -202,20 +200,43 @@ final class SpringBootInitializrStep extends AbstractNewProjectWizardStep {
         }
     }
 
-    /** Rebuilds the checklist keeping checked state; the filter matches group labels and ids. */
+    /** Checkbox toggled in the list: the model is the source of truth, the summary follows. */
+    private void onToggle(int index, boolean value) {
+        String id = dependenciesList.getItemAt(index);
+        if (id != null) {
+            selection.setChecked(id, value);
+        }
+        refreshSummary();
+    }
+
+    /**
+     * Rebuilds the visible rows for the current filter — the model keeps every selection,
+     * including rows currently hidden by the filter. The visible rows' live state is merged
+     * in first as a safety net in case a toggle event was missed.
+     */
     private void applyDependencyFilter() {
-        Set<String> checked = new HashSet<>(dependenciesList.getCheckedItems());
+        List<String> visibleBefore = currentRowIds();
+        selection.syncVisible(visibleBefore, dependenciesList::isItemSelected);
         dependenciesList.clear();
-        String query = filterField.getText().trim().toLowerCase(Locale.ROOT);
-        for (InitializrModels.DependencyGroup group : metadata.groups()) {
-            for (InitializrModels.Dependency dep : group.dependencies()) {
-                String label = dep.name() + " (" + group.name() + ")";
-                if (query.isEmpty() || label.toLowerCase(Locale.ROOT).contains(query)
-                        || dep.id().toLowerCase(Locale.ROOT).contains(query)) {
-                    dependenciesList.addItem(dep.id(), label, checked.contains(dep.id()));
-                }
+        for (String id : selection.visibleIds(filterField.getText())) {
+            dependenciesList.addItem(id, selection.labelOf(id), selection.isChecked(id));
+        }
+        refreshSummary();
+    }
+
+    private @NotNull List<String> currentRowIds() {
+        List<String> ids = new java.util.ArrayList<>();
+        for (int i = 0; i < dependenciesList.getItemsCount(); i++) {
+            String id = dependenciesList.getItemAt(i);
+            if (id != null) {
+                ids.add(id);
             }
         }
+        return ids;
+    }
+
+    private void refreshSummary() {
+        selectedSummary.setText(selection.summary());
     }
 
     private final class FilterListener implements javax.swing.event.DocumentListener {

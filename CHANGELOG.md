@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.9.1 — Unreleased
+### Fixed
+- **Dependency selections survive filtering.** The wizard's checklist previously lost a
+  checked dependency when the filter changed (filter → check → clear filter → check another
+  kept only the last one). Selection now lives in a model outside the list, so filtering
+  only changes which rows are visible — and a "Selected:" row always names every chosen
+  dependency ("Spring Web, Lombok +2 more").
+- **Wider filter field and taller dependency list** in the New Project pane (the filter was
+  a narrow inset column; it now spans the form like every other input, and the list shows
+  ten rows instead of six).
+
 ## 0.9.0 — 2026-10-15
 ### Added
 - **Native New Project dialog integration**: File ▸ New ▸ Project now lists a "Spring
