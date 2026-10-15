@@ -31,14 +31,28 @@ public class SpringBootInitializrStepTest extends BasePlatformTestCase {
 
     public void testRequestQueryCarriesSelections() {
         InitializrClient.GenerateRequest request = new InitializrClient.GenerateRequest(
-                "maven-project", "4.1.1.RELEASE", "com.example", "agenttest", "agenttest",
+                "maven-project", "4.1.1", "com.example", "agenttest", "agenttest",
                 "demo", "com.example.agenttest", "jar", "25", java.util.List.of("web", "data-jpa"));
         String query = request.query();
         assertTrue(query, query.contains("type=maven-project"));
-        assertTrue(query, query.contains("bootVersion=4.1.1.RELEASE"));
+        assertTrue(query, query.contains("bootVersion=4.1.1"));
         assertTrue(query, query.contains("dependencies=" + encode("web,data-jpa")));
         assertTrue(query, query.contains("packaging=jar"));
         assertTrue(query, query.contains("javaVersion=25"));
+    }
+
+    /** Regression: start.spring.io 500s on its own default Boot version sent explicitly; the retry drops the param. */
+    public void testBlankBootVersionIsOmittedFromQueryAndRetryDropsIt() {
+        InitializrClient.GenerateRequest request = new InitializrClient.GenerateRequest(
+                "gradle-project", "4.1.1", "com.example", "demo", "demo",
+                "", "com.example.demo", "jar", "25", java.util.List.of());
+        String retryQuery = request.withoutBootVersion().query();
+        assertFalse(retryQuery, retryQuery.contains("bootVersion"));
+        assertTrue(retryQuery, retryQuery.contains("type=gradle-project"));
+        assertTrue(retryQuery, retryQuery.contains("artifactId=demo"));
+        // a blank boot version never makes it into the query either
+        InitializrClient.GenerateRequest blank = request.withoutBootVersion();
+        assertFalse(blank.query(), blank.query().contains("bootVersion"));
     }
 
     private static @NotNull String encode(@NotNull String raw) {

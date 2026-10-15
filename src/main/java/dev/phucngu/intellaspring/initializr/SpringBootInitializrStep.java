@@ -185,6 +185,7 @@ final class SpringBootInitializrStep extends AbstractNewProjectWizardStep {
             typeCombo.addItem(type.name());
         }
         fillCombo(bootCombo, metadata.bootVersions());
+        bootCombo.setSelectedItem(metadata.defaultBootVersion());
         fillCombo(javaCombo, metadata.javaVersions());
         packagingCombo.removeAllItems();
         packagingCombo.addItem("Jar");

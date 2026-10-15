@@ -106,7 +106,7 @@ public final class InitializrModels {
                 List.of(new BuildType("maven-project", "Maven - pom.xml"),
                         new BuildType("gradle-project", "Gradle - Groovy DSL"),
                         new BuildType("gradle-project-kotlin", "Gradle - Kotlin DSL")),
-                "4.1.1.RELEASE", List.of("4.1.1.RELEASE", "4.0.2", "3.5.6"), List.of("25", "21", "17"),
+                "4.1.1", List.of("4.1.1", "4.0.8", "3.5.6"), List.of("25", "21", "17"),
                 groups);
     }
 

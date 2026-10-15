@@ -34,7 +34,9 @@ public final class InitializrClient {
         public @NotNull String query() {
             StringJoiner joiner = new StringJoiner("&");
             joiner.add("type=" + encode(type));
-            joiner.add("bootVersion=" + encode(bootVersion));
+            if (!bootVersion.isBlank()) {
+                joiner.add("bootVersion=" + encode(bootVersion));
+            }
             joiner.add("groupId=" + encode(groupId));
             joiner.add("artifactId=" + encode(artifactId));
             joiner.add("name=" + encode(name));
@@ -48,6 +50,12 @@ public final class InitializrClient {
             return joiner.toString();
         }
 
+        /** A copy that lets the service pick its default Boot version (its explicit default id is known to 500). */
+        public @NotNull GenerateRequest withoutBootVersion() {
+            return new GenerateRequest(type, "", groupId, artifactId, name, description,
+                    packageName, packaging, javaVersion, dependencies);
+        }
+
         private static @NotNull String encode(@NotNull String value) {
             return URLEncoder.encode(value, StandardCharsets.UTF_8);
         }
@@ -58,7 +66,10 @@ public final class InitializrClient {
     public @NotNull InitializrModels.Metadata fetchMetadata() throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder(URI.create(SERVICE_URL))
                 .timeout(TIMEOUT)
-                .header("Accept", "application/json")
+                // Initializr client protocol: negotiate a stable metadata version the way
+                // IDEA's own wizard does — plain application/json yields a representation
+                // whose default bootVersion id ("4.1.1.RELEASE") the generator rejects
+                .header("Accept", "application/vnd.initializr.v2.3+json,application/vnd.initializr.v2.1+json;q=0.9")
                 .header("User-Agent", "intella-spring")
                 .GET()
                 .build();
@@ -69,9 +80,21 @@ public final class InitializrClient {
         return InitializrModels.parse(response.body());
     }
 
-    /** The generated project as a zip. */
+    /** The generated project as a zip; a Boot-version rejection (HTTP 500) is retried on the service default. */
     public byte @NotNull [] generate(@NotNull GenerateRequest request) throws IOException, InterruptedException {
-        HttpRequest httpRequest = HttpRequest.newBuilder(URI.create(SERVICE_URL + "/starter.zip?" + request.query()))
+        try {
+            return fetchZip(request.query());
+        } catch (IOException e) {
+            String message = String.valueOf(e.getMessage());
+            if (!request.bootVersion().isBlank() && message.contains("500")) {
+                return fetchZip(request.withoutBootVersion().query());
+            }
+            throw e;
+        }
+    }
+
+    private byte @NotNull [] fetchZip(@NotNull String query) throws IOException, InterruptedException {
+        HttpRequest httpRequest = HttpRequest.newBuilder(URI.create(SERVICE_URL + "/starter.zip?" + query))
                 .timeout(TIMEOUT)
                 .header("Accept", "application/zip")
                 .header("User-Agent", "intella-spring")
