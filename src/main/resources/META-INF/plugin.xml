@@ -70,6 +70,7 @@
             <className>dev.phucngu.intellaspring.intention.ConvertToConstructorInjectionIntention</className>
             <category>Spring</category>
         </intentionAction>
+        <newProjectWizard.generator implementation="dev.phucngu.intellaspring.initializr.SpringBootInitializrWizard"/>
     </extensions>
 
     <actions>
@@ -83,12 +84,6 @@
                 description="Jump to a Spring bean definition in this project">
             <add-to-group group-id="GoToMenu" anchor="first"/>
             <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt shift B"/>
-        </action>
-        <action id="IntellaSpring.NewBootProject"
-                class="dev.phucngu.intellaspring.initializr.SpringInitializrAction"
-                text="Spring Boot Project (Initializr)..."
-                description="Generate a new Spring Boot project from start.spring.io">
-            <add-to-group group-id="NewGroup" anchor="first"/>
         </action>
         <action id="IntellaSpring.NewConfigurationClass"
                 class="dev.phucngu.intellaspring.generate.NewSpringClassAction$Configuration"

@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.9.0 — Unreleased
+### Added
+- **Native New Project dialog integration**: File ▸ New ▸ Project now lists a "Spring
+  Boot" generator under "Generators" (right where IDEA Ultimate shows its padlocked Spring
+  entry). Selecting it shows the platform's own Name/Location rows followed by the
+  Initializr settings — type, Boot version, group/artifact/package/description, Java,
+  packaging, and a filterable dependency checklist (live start.spring.io metadata,
+  built-in fallback offline) — and Create downloads the starter zip straight into the new
+  project. The old separate "Spring Boot Project (Initializr)…" dialog and File ▸ New
+  action are gone; project creation now works exactly the way IDEA's own generators do.
+
 ## 0.8.0 — Unreleased
 ### Added
 - **S10 intentions slice**: Alt+Enter on an `@Autowired`/`@Inject` field — "Convert

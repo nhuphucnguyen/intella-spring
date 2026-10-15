@@ -177,11 +177,13 @@ beans depend on what the factory injects). Deferred: XML `<property ref>` edges,
 canvas (platform DiagramProvider), stereotype/profile filters.
 
 ## S9 — Ecosystem breadth (pick by value, each optional)
-- **Initializr wizard (S9.1) — ✅ shipped**: File → New → "Spring Boot Project
-  (Initializr)…" — full coordinate/build/version form plus searchable grouped starter list
-  from live start.spring.io metadata (curated fallback offline), generation to disk with
-  zip-slip-guarded extraction and an "Open Project" notification (ProjectManagerEx.openProject;
-  bundled Maven/Gradle importers load it).
+- **Initializr wizard (S9.1) — ✅ shipped, 0.9.0 native**: a "Spring Boot" generator
+  inside IDEA's own New Project dialog (left rail under "Generators", platform
+  Name/Location rows + Initializr settings pane: type, Boot version, coordinates,
+  Java, packaging, filterable starter checklist from live start.spring.io metadata with
+  curated offline fallback; Create downloads the starter zip into the new project via
+  GeneratorNewProjectWizard/NewProjectWizardChainStep). The 0.8.0-era standalone dialog
+  and File → New action were removed in favor of the native flow.
 - **Spring Data JPA (S9.2) — ✅ shipped**: repository detection through the substituted
   type hierarchy, derived-query property-path validation (greedy camel/underscore walk,
   guarded And/Or split, keyword table, OrderBy paths), `@Query` exemption. Deferred:
