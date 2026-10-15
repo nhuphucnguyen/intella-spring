@@ -5,10 +5,9 @@ import com.intellij.ide.wizard.NewProjectWizardBaseStep;
 import com.intellij.notification.NotificationGroupManager;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.ui.CheckBoxList;
 import com.intellij.ui.dsl.builder.Panel;
 import com.intellij.ui.dsl.builder.RowLayout;
@@ -90,22 +89,42 @@ final class SpringBootInitializrStep extends AbstractNewProjectWizardStep {
         String name = base.getName();
         String artifact = sanitize(name);
         Path target = Path.of(base.getPath(), artifact);
-        InitializrClient.GenerateRequest request = buildRequest(artifact);
+        Logger.getInstance(SpringBootInitializrStep.class)
+                .info("Initializr setupProject: target=" + target);
+        InitializrClient.GenerateRequest request;
+        byte[] zip;
         try {
             ProgressManager.checkCanceled();
-            byte[] zip = new InitializrClient().generate(request);
+            request = buildRequest(artifact);
+            zip = new InitializrClient().generate(request);
+        } catch (IOException | InterruptedException e) {
+            warn(project, "start.spring.io could not be reached: " + e.getMessage()
+                    + ". An empty project was created at " + target + ".");
+            return;
+        }
+        try {
             Files.createDirectories(target);
             Unzips.unzip(zip, target);
-            LocalFileSystem.getInstance().refreshAndFindFileByNioFile(target);
-            VfsUtil.markDirtyAndRefresh(false, true, true, target.toFile());
-        } catch (IOException | InterruptedException e) {
-            NotificationGroupManager.getInstance().getNotificationGroup("IntellaSpring")
-                    .createNotification("Spring Boot project not generated",
-                            "start.spring.io could not be reached: " + e.getMessage()
-                                    + ". An empty project was created at " + target + ".",
-                            NotificationType.WARNING)
-                    .notify(project);
+        } catch (IOException e) {
+            warn(project, "The starter zip could not be written to " + target + ": " + e.getMessage());
+            return;
+        } catch (RuntimeException e) {
+            // surface framework-level failures instead of letting commit swallow them silently
+            Logger.getInstance(SpringBootInitializrStep.class).error("Initializr generation failed", e);
+            warn(project, "Generation failed: " + e.getClass().getSimpleName() + ": " + e.getMessage());
+            return;
         }
+        Logger.getInstance(SpringBootInitializrStep.class)
+                .info("Initializr generated project files into " + target);
+        // no VFS refresh here: setupProject can run inside the commit write action,
+        // where refresh is forbidden — the platform refreshes the project root on open
+    }
+
+    private static void warn(@NotNull Project project, @NotNull String message) {
+        Logger.getInstance(SpringBootInitializrStep.class).warn(message);
+        NotificationGroupManager.getInstance().getNotificationGroup("IntellaSpring")
+                .createNotification("Spring Boot project not generated", message, NotificationType.WARNING)
+                .notify(project);
     }
 
     /** Pure mapping from the form to the Initializr request — unit-tested. */
