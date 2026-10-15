@@ -56,7 +56,12 @@ final class SpringBootInitializrStep extends AbstractNewProjectWizardStep {
     SpringBootInitializrStep(@NotNull NewProjectWizardBaseStep base) {
         super(base);
         this.base = base;
+        // fixed cell height keeps the viewport at visibleRowCount rows tall regardless of
+        // how many rows the filter matches — without it the pane collapses on short results
+        // and never grows back
+        dependenciesList.setFixedCellHeight(com.intellij.util.ui.JBUI.scale(22));
         dependenciesList.setVisibleRowCount(10);
+        dependenciesList.setEmptyText("No matching dependencies");
         fillFromMetadata();
         loadMetadataInBackground();
         filterField.getDocument().addDocumentListener(new FilterListener());
@@ -224,6 +229,7 @@ final class SpringBootInitializrStep extends AbstractNewProjectWizardStep {
         for (String id : selection.visibleIds(filterField.getText())) {
             dependenciesList.addItem(id, selection.labelOf(id), selection.isChecked(id));
         }
+        dependenciesList.revalidate();
         refreshSummary();
     }
 

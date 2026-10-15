@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.9.3 — Unreleased
+### Fixed
+- The dependency checklist keeps its height when a filter matches few (or no)
+  dependencies, and stays that height when the filter is cleared — previously the list
+  collapsed on short results and never expanded back. A "No matching dependencies" empty
+  text replaces the blank pane when nothing matches.
+
 ## 0.9.2 — Unreleased
 ### Fixed
 - Checklist checkbox glyph and the "Selected:" summary repaint immediately on click

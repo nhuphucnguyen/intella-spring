@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "dev.phucngu.intellaspring"
-version = "0.9.2"
+version = "0.9.3"
 
 java {
     // The 2026.2 platform is built with Java 25; plugin compilation must match.
