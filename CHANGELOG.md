@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.9.4 — Unreleased
+### Fixed
+- The dependency checklist really keeps its size now: the 0.9.3 fix sized the list's
+  viewport, but the form still shrank the pane (narrower and shorter) after a short filter
+  result. The pane now has a pinned size, fills the form width, and scrolls back to the top
+  when the filter changes instead of landing mid-list.
+### Changed
+- Group, Artifact, Package name, Description and Filter fields span the full form width.
+
 ## 0.9.3 — Unreleased
 ### Fixed
 - The dependency checklist keeps its height when a filter matches few (or no)

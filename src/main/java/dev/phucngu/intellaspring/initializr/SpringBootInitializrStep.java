@@ -9,13 +9,19 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.CheckBoxList;
+import com.intellij.ui.components.JBScrollPane;
+import com.intellij.ui.dsl.builder.AlignX;
 import com.intellij.ui.dsl.builder.Panel;
+import com.intellij.util.ui.JBUI;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
+import java.awt.Dimension;
+import java.awt.Point;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -44,8 +50,9 @@ final class SpringBootInitializrStep extends AbstractNewProjectWizardStep {
     private final JTextField artifactField = new JTextField("demo");
     private final JTextField packageField = new JTextField("com.example.demo");
     private final JTextField descriptionField = new JTextField();
-    private final JTextField filterField = new JTextField(30);
+    private final JTextField filterField = new JTextField();
     private final CheckBoxList<String> dependenciesList = new CheckBoxList<>(this::onToggle);
+    private final JBScrollPane dependenciesPane = new FixedSizeScrollPane(dependenciesList);
     private final JLabel selectedSummary = new JLabel("No dependencies selected");
     private final JLabel metadataStatus = new JLabel("Loading metadata from start.spring.io…");
 
@@ -56,11 +63,6 @@ final class SpringBootInitializrStep extends AbstractNewProjectWizardStep {
     SpringBootInitializrStep(@NotNull NewProjectWizardBaseStep base) {
         super(base);
         this.base = base;
-        // fixed cell height keeps the viewport at visibleRowCount rows tall regardless of
-        // how many rows the filter matches — without it the pane collapses on short results
-        // and never grows back
-        dependenciesList.setFixedCellHeight(com.intellij.util.ui.JBUI.scale(22));
-        dependenciesList.setVisibleRowCount(10);
         dependenciesList.setEmptyText("No matching dependencies");
         fillFromMetadata();
         loadMetadataInBackground();
@@ -71,15 +73,15 @@ final class SpringBootInitializrStep extends AbstractNewProjectWizardStep {
     public void setupUI(@NotNull Panel panel) {
         panel.row("Type:", row -> { row.cell(typeCombo); return Unit.INSTANCE; });
         panel.row("Boot version:", row -> { row.cell(bootCombo); return Unit.INSTANCE; });
-        panel.row("Group:", row -> { row.cell(groupField); return Unit.INSTANCE; });
-        panel.row("Artifact:", row -> { row.cell(artifactField); return Unit.INSTANCE; });
-        panel.row("Package name:", row -> { row.cell(packageField); return Unit.INSTANCE; });
-        panel.row("Description:", row -> { row.cell(descriptionField); return Unit.INSTANCE; });
+        panel.row("Group:", row -> { row.cell(groupField).align(AlignX.FILL); return Unit.INSTANCE; });
+        panel.row("Artifact:", row -> { row.cell(artifactField).align(AlignX.FILL); return Unit.INSTANCE; });
+        panel.row("Package name:", row -> { row.cell(packageField).align(AlignX.FILL); return Unit.INSTANCE; });
+        panel.row("Description:", row -> { row.cell(descriptionField).align(AlignX.FILL); return Unit.INSTANCE; });
         panel.row("Java:", row -> { row.cell(javaCombo); return Unit.INSTANCE; });
         panel.row("Packaging:", row -> { row.cell(packagingCombo); return Unit.INSTANCE; });
-        panel.row("Filter:", row -> { row.cell(filterField); return Unit.INSTANCE; });
+        panel.row("Filter:", row -> { row.cell(filterField).align(AlignX.FILL); return Unit.INSTANCE; });
         panel.row("Dependencies:", row -> {
-            row.cell(new com.intellij.ui.components.JBScrollPane(dependenciesList));
+            row.cell(dependenciesPane).align(AlignX.FILL);
             return Unit.INSTANCE;
         });
         panel.row("Selected:", row -> { row.cell(selectedSummary); return Unit.INSTANCE; });
@@ -230,6 +232,8 @@ final class SpringBootInitializrStep extends AbstractNewProjectWizardStep {
             dependenciesList.addItem(id, selection.labelOf(id), selection.isChecked(id));
         }
         dependenciesList.revalidate();
+        // the viewport otherwise keeps the old scroll offset, landing mid-list after a clear
+        dependenciesPane.getViewport().setViewPosition(new Point(0, 0));
         refreshSummary();
     }
 
@@ -246,6 +250,21 @@ final class SpringBootInitializrStep extends AbstractNewProjectWizardStep {
 
     private void refreshSummary() {
         selectedSummary.setText(selection.summary());
+    }
+
+    /**
+     * The checklist's viewport derives its size from the current rows, so a short filter
+     * result shrank the pane (narrower and shorter) and the form never grew it back. Pinning
+     * preferred and minimum size keeps it constant; the row's FILL alignment supplies width.
+     */
+    private static final class FixedSizeScrollPane extends JBScrollPane {
+        FixedSizeScrollPane(@NotNull CheckBoxList<String> list) {
+            super(list, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
+                    ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        }
+
+        @Override public Dimension getPreferredSize() { return JBUI.size(480, 260); }
+        @Override public Dimension getMinimumSize() { return JBUI.size(480, 260); }
     }
 
     private final class FilterListener implements javax.swing.event.DocumentListener {
