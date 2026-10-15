@@ -1,6 +1,9 @@
 # Changelog
 
-## 0.9.1 — Unreleased
+## 0.9.2 — Unreleased
+### Fixed
+- Checklist checkbox glyph and the "Selected:" summary repaint immediately on click
+  (they previously waited for the next filter re-render).
 ### Fixed
 - **Dependency selections survive filtering.** The wizard's checklist previously lost a
   checked dependency when the filter changed (filter → check → clear filter → check another

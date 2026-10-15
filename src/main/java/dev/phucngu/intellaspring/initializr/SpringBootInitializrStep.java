@@ -207,6 +207,9 @@ final class SpringBootInitializrStep extends AbstractNewProjectWizardStep {
             selection.setChecked(id, value);
         }
         refreshSummary();
+        // synthetic/AX clicks don't always flush row repaints — force the glyph and label
+        dependenciesList.repaint();
+        selectedSummary.repaint();
     }
 
     /**
