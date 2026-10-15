@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.9.0 — Unreleased
+## 0.9.0 — 2026-10-15
 ### Added
 - **Native New Project dialog integration**: File ▸ New ▸ Project now lists a "Spring
   Boot" generator under "Generators" (right where IDEA Ultimate shows its padlocked Spring
