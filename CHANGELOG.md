@@ -11,6 +11,14 @@
   project. The old separate "Spring Boot Project (Initializr)…" dialog and File ▸ New
   action are gone; project creation now works exactly the way IDEA's own generators do.
 
+### Fixed
+- Project generation no longer fails silently: metadata is fetched via Initializr versioned
+  content negotiation (`Accept: application/vnd.initializr.v2.3+json`, the same header
+  IDEA's own wizard sends). Plain `application/json` served a legacy default Boot-version
+  id (`4.1.1.RELEASE`) that start.spring.io intermittently rejected with HTTP 500 — the
+  negotiated metadata yields clean ids (`4.1.1`), the server's declared default is
+  preselected, and a retry-without-bootVersion remains as a defensive net.
+
 ## 0.8.0 — Unreleased
 ### Added
 - **S10 intentions slice**: Alt+Enter on an `@Autowired`/`@Inject` field — "Convert
