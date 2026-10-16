@@ -102,4 +102,33 @@ public class BootRunConfigurationTest extends BasePlatformTestCase {
         config.setMainClassName("com.example.orders.OrdersApplication");
         assertEquals("OrdersApplication", config.suggestedName());
     }
+
+    public void testLaunchStateAppliesBootParamsAndHonoursShortenCommandLine() throws Exception {
+        var type = ConfigurationTypeUtil.findConfigurationType(IntellaSpringBootConfigurationType.class);
+        var config = new IntellaSpringBootRunConfiguration(getProject(), type.getConfigurationFactories()[0], "test");
+        // the light fixture has no module JDK; register the JDK this test runs on
+        var jdk = com.intellij.openapi.projectRoots.JavaSdk.getInstance()
+                .createJdk("isb-test-jdk", System.getProperty("java.home"), false);
+        com.intellij.openapi.application.WriteAction.runAndWait(() ->
+                com.intellij.openapi.projectRoots.ProjectJdkTable.getInstance().addJdk(jdk, getTestRootDisposable()));
+        com.intellij.openapi.roots.ModuleRootModificationUtil.setModuleSdk(getModule(), jdk);
+        config.setModule(getModule());
+        config.setMainClassName("demo.DemoApplication");
+        config.setActiveProfiles("dev");
+        config.setShortenCommandLine(com.intellij.execution.ShortenCommandLine.ARGS_FILE);
+
+        var env = com.intellij.execution.runners.ExecutionEnvironmentBuilder
+                .create(com.intellij.execution.executors.DefaultRunExecutor.getRunExecutorInstance(), config).build();
+        var params = config.createLaunchState(env).createJavaParameters4Test();
+
+        assertEquals("demo.DemoApplication", params.getMainClass());
+        assertTrue(params.getVMParametersList().getParameters().toString(),
+                params.getVMParametersList().getParameters().contains("-Dspring.profiles.active=dev"));
+        assertTrue(params.getVMParametersList().getParameters().contains("-Dspring.main.banner-mode=OFF"));
+        // a non-NONE shortener surfaces as a dynamic classpath on the produced parameters
+        assertTrue(params.isDynamicClasspath());
+
+        config.setShortenCommandLine(com.intellij.execution.ShortenCommandLine.NONE);
+        assertFalse(config.createLaunchState(env).createJavaParameters4Test().isDynamicClasspath());
+    }
 }

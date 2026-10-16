@@ -1,10 +1,8 @@
 package dev.phucngu.intellaspring.boot;
 
-import com.intellij.execution.CommonJavaRunConfigurationParameters;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.Executor;
 import com.intellij.execution.configurations.ConfigurationFactory;
-import com.intellij.execution.configurations.JavaCommandLineState;
 import com.intellij.execution.configurations.JavaParameters;
 import com.intellij.execution.configurations.ParametersList;
 import com.intellij.execution.configurations.RunProfileState;
@@ -103,7 +101,7 @@ public class IntellaSpringBootRunConfiguration extends ApplicationConfiguration 
     @Override
     public RunProfileState getState(@NotNull Executor executor, @NotNull ExecutionEnvironment environment)
             throws ExecutionException {
-        return new IntellaSpringBootCommandLineState(environment);
+        return createLaunchState(environment);
     }
 
     @Override
@@ -137,20 +135,30 @@ public class IntellaSpringBootRunConfiguration extends ApplicationConfiguration 
         vmParameters.add("-Dspring.output.ansi.enabled=always");
     }
 
-    private final class IntellaSpringBootCommandLineState extends JavaCommandLineState {
-        private IntellaSpringBootCommandLineState(@NotNull ExecutionEnvironment environment) {
-            super(environment);
+    /**
+     * The stock application launch path (shorten-command-line, alternative JRE, provided scope,
+     * env, module path) with Boot's VM parameters layered on top.
+     */
+    private static final class IntellaSpringBootCommandLineState
+            extends ApplicationConfiguration.JavaApplicationCommandLineState<IntellaSpringBootRunConfiguration> {
+        private IntellaSpringBootCommandLineState(@NotNull IntellaSpringBootRunConfiguration configuration,
+                                                  @NotNull ExecutionEnvironment environment) {
+            super(configuration, environment);
         }
 
         @Override
         protected JavaParameters createJavaParameters() throws ExecutionException {
-            JavaParameters params = new JavaParameters();
-            JavaParametersUtil.configureConfiguration(params, IntellaSpringBootRunConfiguration.this);
-            JavaParametersUtil.configureModule(IntellaSpringBootRunConfiguration.this.getConfigurationModule(),
-                    params, JavaParameters.JDK_AND_CLASSES, null);
-            params.setMainClass(getMainClassName());
-            applyBootParameters(params.getVMParametersList(), hideBanner, launchOptimization, activeProfiles);
+            JavaParameters params = super.createJavaParameters();
+            IntellaSpringBootRunConfiguration config = myConfiguration;
+            applyBootParameters(params.getVMParametersList(), config.hideBanner, config.launchOptimization,
+                    config.activeProfiles);
             return params;
         }
+    }
+
+    /** The launch state a run of this configuration uses; exposed so tests can inspect its parameters. */
+    public @NotNull ApplicationConfiguration.JavaApplicationCommandLineState<IntellaSpringBootRunConfiguration>
+    createLaunchState(@NotNull ExecutionEnvironment environment) {
+        return new IntellaSpringBootCommandLineState(this, environment);
     }
 }
