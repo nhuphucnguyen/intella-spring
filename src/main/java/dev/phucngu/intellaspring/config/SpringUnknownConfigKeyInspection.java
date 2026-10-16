@@ -3,15 +3,9 @@ package dev.phucngu.intellaspring.config;
 import com.intellij.codeInspection.LocalInspectionTool;
 import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.lang.properties.psi.Property;
-import com.intellij.lang.properties.psi.Property;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Flags unknown configuration keys in application*.properties: a key whose first segment is a
@@ -39,19 +33,8 @@ public class SpringUnknownConfigKeyInspection extends LocalInspectionTool {
                         property.getContainingFile().getName())) {
             return;
         }
-        var keys = SpringConfigMetadataService.getInstance(holder.getProject()).keys();
-        if (keys.isEmpty()) {
-            return;
-        }
-        Set<String> roots = new HashSet<>();
-        for (ConfigKey candidate : keys) {
-            roots.add(candidate.firstSegment());
-            if (candidate.name().equals(key)) {
-                return; // known key
-            }
-        }
-        String firstSegment = key.split("\\.")[0];
-        if (roots.contains(firstSegment)) {
+        ConfigKeyIndex index = SpringConfigMetadataService.getInstance(holder.getProject()).index();
+        if (!index.isEmpty() && index.hasRoot(key) && !index.isKnown(key)) {
             holder.registerProblem(property,
                     "Unknown Spring Boot configuration key '" + key + "'");
         }

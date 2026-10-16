@@ -99,4 +99,38 @@ public class SpringValueAndCronTest extends BasePlatformTestCase {
         assertEquals("invalid step '/0'", CronExpressions.describeProblem("0/0 * * * * *"));
         assertNotNull(CronExpressions.describeProblem(""));
     }
+
+    private int probes;
+
+    private List<String> placeholderProblems(String valueExpression) {
+        String name = "Probe" + probes++;
+        addClass("package demo;\npublic class " + name + " {\n"
+                + "  @org.springframework.beans.factory.annotation.Value(\"" + valueExpression + "\")\n"
+                + "  private String field;\n}");
+        return highlighting("demo/" + name + ".java").stream().filter(d -> d.contains("configuration key")).toList();
+    }
+
+    public void testKeyDefinedInApplicationPropertiesResolves() {
+        myFixture.addFileToProject("application.properties", "app.greeting=hi\n");
+        assertEquals(List.of(), placeholderProblems("${app.greeting}"));
+    }
+
+    public void testKeyDefinedInNestedYamlResolves() {
+        myFixture.addFileToProject("application-dev.yml", "app:\n  greeting: hi\n  max-size: 3\n");
+        assertEquals(List.of(), placeholderProblems("${app.greeting}"));
+        assertEquals(List.of(), placeholderProblems("${app.maxSize}"));
+    }
+
+    public void testMissingKeyStillFlagged() {
+        myFixture.addFileToProject("application.properties", "app.greeting=hi\n");
+        assertEquals(List.of("Unresolved configuration key 'app.farewell'"), placeholderProblems("${app.farewell}"));
+    }
+
+    public void testEnvironmentStyleAndNestedPlaceholders() {
+        assertEquals(List.of(), placeholderProblems("${HOME}/${JAVA_HOME}"));
+        assertEquals(List.of(), placeholderProblems("${a.b:${c.d:x}}"));
+        assertEquals(List.of("Unresolved configuration key 'c.d'"), placeholderProblems("${a.b:${c.d}}"));
+        assertEquals(List.of(), placeholderProblems("${${x.y}:z}"));
+        assertEquals(List.of(), placeholderProblems("${unbalanced"));
+    }
 }

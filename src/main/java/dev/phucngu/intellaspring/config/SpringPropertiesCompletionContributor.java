@@ -40,7 +40,7 @@ public class SpringPropertiesCompletionContributor extends CompletionContributor
                     return;
                 }
                 for (ConfigKey key : SpringConfigMetadataService
-                        .getInstance(position.getProject()).keys()) {
+                        .getInstance(position.getProject()).index().keys()) {
                     if (key.name().regionMatches(true, 0, prefix, 0, prefix.length())) {
                         result.addElement(element(key));
                     }

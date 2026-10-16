@@ -23,10 +23,7 @@ public class SpringConfigKeyDocumentationProvider extends AbstractDocumentationP
         if (key == null) {
             return null;
         }
-        ConfigKey match = SpringConfigMetadataService.getInstance(element.getProject()).keys().stream()
-                .filter(candidate -> candidate.name().equals(key))
-                .findFirst()
-                .orElse(null);
+        ConfigKey match = SpringConfigMetadataService.getInstance(element.getProject()).index().find(key);
         if (match == null) {
             return null;
         }
