@@ -34,7 +34,9 @@ public final class BeansTreeModel {
             if (module.isDisposed() || !service.isSpringModule(module)) {
                 continue;
             }
+            // The context includes dependency modules' and library beans; list each bean under its own module only.
             List<BeanRow> beans = service.beans(module).stream()
+                    .filter(def -> com.intellij.openapi.module.ModuleUtilCore.findModuleForPsiElement(def.sourceElement()) == module)
                     .map(def -> new BeanRow(def.displayName(), typeShort(def.beanTypeName()),
                             def.origin(), def.stereotype(), def))
                     .sorted(Comparator.comparing(BeanRow::name, String.CASE_INSENSITIVE_ORDER))

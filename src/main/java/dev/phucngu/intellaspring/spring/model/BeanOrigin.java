@@ -7,5 +7,7 @@ public enum BeanOrigin {
     /** {@code @Bean} method on a configuration or component class. */
     BEAN_METHOD,
     /** {@code <bean>} declaration in a Spring XML config. */
-    XML
+    XML,
+    /** Spring Data repository interface — the bean is the proxy Spring Data creates for it. */
+    SPRING_DATA_REPOSITORY
 }
