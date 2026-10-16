@@ -21,6 +21,11 @@ public final class SpringAnnotations {
     public static final String LAZY = "org.springframework.context.annotation.Lazy";
     public static final String PRIMARY = "org.springframework.context.annotation.Primary";
     public static final String QUALIFIER = "org.springframework.beans.factory.annotation.Qualifier";
+    public static final String FALLBACK = "org.springframework.context.annotation.Fallback";
+    public static final String NAMED_JAKARTA = "jakarta.inject.Named";
+    public static final String NAMED_JAVAX = "javax.inject.Named";
+    public static final String QUALIFIER_JAKARTA = "jakarta.inject.Qualifier";
+    public static final String QUALIFIER_JAVAX = "javax.inject.Qualifier";
     public static final String SCOPE = "org.springframework.context.annotation.Scope";
     public static final String PROFILE = "org.springframework.context.annotation.Profile";
 

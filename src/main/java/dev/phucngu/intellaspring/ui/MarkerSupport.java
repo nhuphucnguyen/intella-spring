@@ -1,7 +1,10 @@
 package dev.phucngu.intellaspring.ui;
 
+import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtilCore;
+import com.intellij.openapi.progress.ProcessCanceledException;
+import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.PopupStep;
@@ -19,12 +22,12 @@ import com.intellij.psi.util.PsiTreeUtil;
 import dev.phucngu.intellaspring.spring.SpringInjections;
 import com.intellij.ui.awt.RelativePoint;
 import dev.phucngu.intellaspring.spring.SpringContextService;
-import dev.phucngu.intellaspring.spring.model.SpringBeanDef;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
@@ -40,17 +43,6 @@ public final class MarkerSupport {
             return null;
         }
         return SpringContextService.getInstance(element.getProject()).isSpringModule(module) ? module : null;
-    }
-
-    /** Beans whose declared type is the given class — the candidates an injection of it resolves to. */
-    public static @NotNull List<SpringBeanDef> beansOfType(@NotNull Module module, @Nullable PsiClass type) {
-        if (type == null || type.getQualifiedName() == null) {
-            return List.of();
-        }
-        String fqn = type.getQualifiedName();
-        return SpringContextService.getInstance(module.getProject()).beans(module).stream()
-                .filter(bean -> fqn.equals(bean.beanTypeName()))
-                .toList();
     }
 
     /**
@@ -103,37 +95,44 @@ public final class MarkerSupport {
         if (beanType == null) {
             return;
         }
-        // the gutter handler may run outside a read action; PSI search requires one
-        java.util.List<PsiElement> targets = com.intellij.openapi.application.ReadAction.compute(() -> {
-            java.util.List<PsiElement> found = new java.util.ArrayList<>(SpringInjections.injectionPoints(beanType));
-            return found;
-        });
-        String title = "Injection Points";
-        if (targets.isEmpty()) {
-            title = "Usages";
-            targets = com.intellij.openapi.application.ReadAction.compute(() -> {
-                java.util.List<PsiElement> usages = new java.util.ArrayList<>();
-                for (PsiReference reference : ReferencesSearch.search(beanType)) {
-                    PsiMember member = PsiTreeUtil.getParentOfType(reference.getElement(), PsiMember.class, false);
-                    if (member != null) {
-                        usages.add(member);
-                    }
-                }
-                return usages;
-            });
+        // The reference search can be slow: run it off the click handler's EDT under a modal,
+        // cancellable progress, then show the chooser back here.
+        Searched searched;
+        try {
+            searched = ProgressManager.getInstance().runProcessWithProgressSynchronously(
+                    () -> ReadAction.compute(() -> searchInjections(project, beanType)),
+                    "Finding Injection Points of '" + beanName + "'", true, project);
+        } catch (ProcessCanceledException cancelled) {
+            return;
         }
-        if (targets.isEmpty()) {
+        if (searched == null || searched.targets().isEmpty()) {
             new Notification("IntellaSpring", "Spring bean '" + beanName + "'",
                     "No injection points or usages — nothing references this bean yet.",
                     NotificationType.INFORMATION).notify(project);
             return;
         }
-        // 'targets' is reassigned above, so alias it into an effectively-final local for the lambda
-        final java.util.List<? extends PsiElement> collected = targets;
-        navigate(project, com.intellij.openapi.application.ReadAction.compute(() ->
-                        sortedForPresentation(project, collected)).stream()
-                        .map(t -> (Navigatable) t).toList(),
-                event, title, n -> MarkerSupport.memberLabel((com.intellij.psi.PsiElement) n));
+        navigate(project, searched.targets().stream().map(t -> (Navigatable) t).toList(),
+                event, searched.title(), n -> MarkerSupport.memberLabel((PsiElement) n));
+    }
+
+    private record Searched(@NotNull String title, @NotNull List<PsiElement> targets) {
+    }
+
+    /** Injection points, else plain usages, in presentation order — read action required. */
+    private static @NotNull Searched searchInjections(@NotNull Project project, @NotNull PsiClass beanType) {
+        List<PsiElement> found = SpringInjections.injectionPoints(beanType);
+        String title = "Injection Points";
+        if (found.isEmpty()) {
+            title = "Usages";
+            found = new ArrayList<>();
+            for (PsiReference reference : ReferencesSearch.search(beanType)) {
+                PsiMember member = PsiTreeUtil.getParentOfType(reference.getElement(), PsiMember.class, false);
+                if (member != null) {
+                    found.add(member);
+                }
+            }
+        }
+        return new Searched(title, sortedForPresentation(project, found));
     }
 
     /**

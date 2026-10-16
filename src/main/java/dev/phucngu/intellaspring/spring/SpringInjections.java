@@ -1,5 +1,6 @@
 package dev.phucngu.intellaspring.spring;
 
+import com.intellij.psi.CommonClassNames;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiField;
@@ -8,8 +9,11 @@ import com.intellij.psi.PsiModifier;
 import com.intellij.psi.PsiModifierListOwner;
 import com.intellij.psi.PsiParameter;
 import com.intellij.psi.PsiReference;
+import com.intellij.psi.PsiType;
 import com.intellij.psi.search.searches.ReferencesSearch;
+import com.intellij.psi.util.InheritanceUtil;
 import com.intellij.psi.util.PsiTreeUtil;
+import dev.phucngu.intellaspring.spring.model.SpringBeanDef;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,26 +35,63 @@ public final class SpringInjections {
     private SpringInjections() {
     }
 
+    /**
+     * Where the bean class is injected: through references to the class itself, and through
+     * references to its supertypes (an interface or abstract base) whenever the shared
+     * matcher says the site would actually receive this class.
+     */
     public static @NotNull List<PsiElement> injectionPoints(@NotNull PsiClass beanClass) {
         Set<PsiElement> out = new LinkedHashSet<>();
-        for (PsiReference reference : ReferencesSearch.search(beanClass)) {
-            PsiElement at = reference.getElement();
-            PsiParameter parameter = PsiTreeUtil.getParentOfType(at, PsiParameter.class, false);
-            if (parameter != null && injectedParameter(parameter)) {
-                out.add(parameter);
+        collectInjectionPoints(beanClass, out, null);
+        List<SpringBeanDef> pool = null;
+        for (PsiClass superType : InheritanceUtil.getSuperClasses(beanClass)) {
+            if (CommonClassNames.JAVA_LANG_OBJECT.equals(superType.getQualifiedName())) {
                 continue;
             }
-            PsiField field = PsiTreeUtil.getParentOfType(at, PsiField.class, false);
-            if (field != null && (isAutowiredField(field) || isLombokInjectedField(field))) {
-                out.add(field);
-                continue;
+            if (pool == null) {
+                pool = SpringContextService.getInstance(beanClass.getProject()).allBeans();
             }
-            PsiMethod method = PsiTreeUtil.getParentOfType(at, PsiMethod.class, false);
-            if (method != null && isAutowiredMethod(method)) {
-                out.add(method);
-            }
+            collectInjectionPoints(superType, out, new Receiver(beanClass, pool));
         }
         return new ArrayList<>(out);
+    }
+
+    /** The class whose injection a supertype reference must lead to, and the bean pool to judge by. */
+    private record Receiver(@NotNull PsiClass beanClass, @NotNull List<SpringBeanDef> pool) {
+        boolean receivedBy(@NotNull PsiElement point) {
+            if (point instanceof PsiMethod method) {
+                return java.util.Arrays.stream(method.getParameterList().getParameters()).anyMatch(this::receivedBy);
+            }
+            PsiType type = point instanceof PsiField field ? field.getType()
+                    : point instanceof PsiParameter parameter ? parameter.getType() : null;
+            if (type == null) {
+                return false;
+            }
+            var site = new SpringBeanMatching.InjectionSite((PsiModifierListOwner) point, type);
+            return SpringBeanMatching.narrow(SpringBeanMatching.candidates(site, pool)).stream()
+                    .anyMatch(bean -> SpringBeanMatching.isBeanClass(beanClass, List.of(bean)));
+        }
+    }
+
+    private static void collectInjectionPoints(@NotNull PsiClass target, @NotNull Set<PsiElement> out,
+                                               @Nullable Receiver receiver) {
+        for (PsiReference reference : ReferencesSearch.search(target)) {
+            PsiElement at = reference.getElement();
+            PsiElement point = null;
+            PsiParameter parameter = PsiTreeUtil.getParentOfType(at, PsiParameter.class, false);
+            PsiField field = PsiTreeUtil.getParentOfType(at, PsiField.class, false);
+            PsiMethod method = PsiTreeUtil.getParentOfType(at, PsiMethod.class, false);
+            if (parameter != null && injectedParameter(parameter)) {
+                point = parameter;
+            } else if (field != null && (isAutowiredField(field) || isLombokInjectedField(field))) {
+                point = field;
+            } else if (method != null && isAutowiredMethod(method)) {
+                point = method;
+            }
+            if (point != null && (receiver == null || receiver.receivedBy(point))) {
+                out.add(point);
+            }
+        }
     }
 
     public static boolean isAutowiredField(@NotNull PsiField field) {
@@ -132,11 +173,7 @@ public final class SpringInjections {
     }
 
     private static boolean isBeanClass(@Nullable PsiClass candidate) {
-        if (candidate == null || candidate.getQualifiedName() == null) {
-            return false;
-        }
-        String fqn = candidate.getQualifiedName();
-        return SpringContextService.getInstance(candidate.getProject()).allBeans().stream()
-                .anyMatch(bean -> fqn.equals(bean.beanTypeName()));
+        return candidate != null && SpringBeanMatching.isBeanClass(candidate,
+                SpringContextService.getInstance(candidate.getProject()).allBeans());
     }
 }

@@ -6,21 +6,22 @@ import com.intellij.openapi.editor.markup.GutterIconRenderer;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.pom.Navigatable;
-import com.intellij.psi.PsiClassType;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiIdentifier;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiParameter;
-import com.intellij.psi.PsiType;
 import com.intellij.ui.awt.RelativePoint;
 import dev.phucngu.intellaspring.spring.SpringAnnotations;
+import dev.phucngu.intellaspring.spring.SpringBeanMatching;
+import dev.phucngu.intellaspring.spring.SpringContextService;
 import dev.phucngu.intellaspring.spring.SpringInjections;
 import dev.phucngu.intellaspring.spring.model.SpringBeanDef;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -38,31 +39,32 @@ public class SpringInjectionLineMarkerProvider implements LineMarkerProvider {
             return null;
         }
         PsiElement owner = identifier.getParent();
-        List<PsiType> injectedTypes = null;
+        List<SpringBeanMatching.InjectionSite> sites = null;
         if (owner instanceof PsiField field && field.getNameIdentifier() == identifier
                 && (SpringInjections.isAutowiredField(field) || SpringInjections.isLombokInjectedField(field))) {
-            injectedTypes = List.of(field.getType());
+            sites = List.of(new SpringBeanMatching.InjectionSite(field, field.getType()));
         } else if (owner instanceof PsiMethod method && method.getNameIdentifier() == identifier
                 && (SpringInjections.isAutowiredMethod(method) || SpringInjections.isBeanFactoryMethod(method)
                 || (method.isConstructor() && SpringInjections.isImplicitInjectionConstructor(method)))) {
-            Set<PsiType> parameterTypes = new LinkedHashSet<>();
+            sites = new ArrayList<>();
             for (PsiParameter parameter : method.getParameterList().getParameters()) {
-                parameterTypes.add(parameter.getType());
+                if (parameter.getAnnotation(SpringAnnotations.VALUE) == null) {
+                    sites.add(new SpringBeanMatching.InjectionSite(parameter, parameter.getType()));
+                }
             }
-            injectedTypes = List.copyOf(parameterTypes);
         }
-        if (injectedTypes == null || injectedTypes.isEmpty()) {
+        if (sites == null || sites.isEmpty()) {
             return null;
         }
         Module module = MarkerSupport.springModuleOf(element);
         if (module == null) {
             return null;
         }
+        // same pool and rules as the autowiring inspection
+        List<SpringBeanDef> pool = SpringContextService.getInstance(module.getProject()).allBeans();
         Set<SpringBeanDef> candidates = new LinkedHashSet<>();
-        for (PsiType type : injectedTypes) {
-            if (type instanceof PsiClassType classType) {
-                candidates.addAll(MarkerSupport.beansOfType(module, classType.resolve()));
-            }
+        for (SpringBeanMatching.InjectionSite site : sites) {
+            candidates.addAll(SpringBeanMatching.narrow(SpringBeanMatching.candidates(site, pool)));
         }
         if (candidates.isEmpty()) {
             return null;
