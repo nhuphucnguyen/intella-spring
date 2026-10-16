@@ -36,12 +36,16 @@ public final class SpringConfigMetadata {
                 continue;
             }
             JsonElement deprecation = property.get("deprecation");
+            JsonElement legacyDeprecated = property.get("deprecated");
+            boolean deprecated = deprecation != null && deprecation.isJsonObject()
+                    || legacyDeprecated != null && legacyDeprecated.isJsonPrimitive()
+                    && legacyDeprecated.getAsJsonPrimitive().isBoolean() && legacyDeprecated.getAsBoolean();
             keys.add(new ConfigKey(
                     name,
                     string(property, "type"),
                     string(property, "defaultValue"),
                     string(property, "description"),
-                    deprecation != null && deprecation.isJsonObject()));
+                    deprecated));
         }
         return keys;
     }
