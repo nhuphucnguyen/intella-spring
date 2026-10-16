@@ -14,15 +14,15 @@ Legend: ✅ shipped · 🔨 milestone assigned · ❌ not planned in v1.
 | **XML config** | DOM completion, refs, p:/c:, custom namespaces | ✅ refs+completion (p:-ref; p:/c: values, custom namespaces → later) | S3 |
 | XML↔Java bean navigation | ✅ | ✅ (XML ref → Java bean, class attr ⇄ Java, gutter both sides) | S3 |
 | XML live/file templates | 9 template sets | 🔨 subset, own wording | S3 |
-| **Autowiring analysis** | unresolved/ambiguous/qualifier quick-fixes | ✅ raw-type + qualifiers + @Primary (generics, @Value → later) | S4 |
-| `${placeholder}` references | ✅ | ✅ @Value placeholder inspection (properties-file side later) | S4/S9 |
+| **Autowiring analysis** | unresolved/ambiguous/qualifier quick-fixes | ✅ subtype-aware + generics (erasure, exact preferred) + @Qualifier/@Named/custom qualifiers + @Resource by name + @Primary/@Fallback; Spring Data repos as beans; one matcher for gutter/inspection/Beans view (profiles, @ComponentScan bounds, Boot conditions → later) | S4 |
+| `${placeholder}` references | ✅ | ✅ @Value placeholder inspection against metadata + project application*.properties/yml, nested placeholders, env-style keys (properties-file references/navigation later) | S4/S9 |
 | SpEL `#{…}` references | dedicated module | 🔨 later (S9.4) | S9 |
 | Profiles (active per context) | ✅ + switcher action | 🔨 model-level ✅, switcher S10 | S1/S10 |
-| **Boot run config** | profiles/banner/optimization/devtools restart | ✅ profiles/banner/optimization + producer (devtools/actuator tabs → S5.2) | S5 |
+| **Boot run config** | profiles/banner/optimization/devtools restart | ✅ profiles/banner/optimization + producer on the stock launch state (shorten cmdline, alt JRE) (devtools/actuator tabs → S5.2) | S5 |
 | Producer + main-class validation | ✅ | ✅ | S5 |
 | Endpoints & Beans tabs (JMX/actuator) | ✅ | ✅ static Endpoints tree (live JMX/actuator → later); Beans view S8 | S7 |
 | Update on frame deactivation | ✅ | 🔨 | S5 |
-| **Config metadata completion** | properties + yml via microservices.jvm | ✅ own parser + completion (value hints/@ConfigurationProperties → later) | S6 |
+| **Config metadata completion** | properties + yml via microservices.jvm | ✅ own parser + completion; per-jar cached metadata, relaxed binding, Map/List prefixes, build-output metadata for project @ConfigurationProperties (value hints → later) | S6 |
 | Deprecated keys, docs, unknown-key inspection | ✅ | ✅ (properties side; yaml docs → later) | S6 |
 | @ConfigurationProperties key gen + navigation | ✅ | 🔨 | S6 |
 | **MVC** | endpoints provider, mapping gutter, view resolvers | ✅ model + endpoints tool window + mapping gutter→reveal (view resolvers → later) | S7/S10 |

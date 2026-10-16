@@ -1,5 +1,44 @@
 # Changelog
 
+## 0.10.0 — Unreleased
+Architecture-review fixes: the bean model and config-key checks no longer report errors on
+ordinary Spring code.
+### Fixed
+- **Injection by interface or superclass resolves.** `@Autowired UserService s` with a
+  `@Service class UserServiceImpl implements UserService` no longer reports "No qualifying
+  bean". Matching is subtype-aware, and `@Bean` methods returning generic types match their
+  injection points (exact generic matches are preferred, so `Repo<User>` and `Repo<Order>`
+  beans are not reported as ambiguous).
+- **No duplicate beans in multi-module projects.** A module that depends on another no longer
+  sees the other module's beans twice ("More than one bean of type X: foo, foo").
+- **Spring Data repositories are beans.** Repository interfaces (not `@NoRepositoryBean`) can
+  be injected without errors and appear in the Beans view.
+- **`@Value("${key}")` resolves against your own config.** Keys defined in
+  application*.properties / application*.yml (any profile) count as resolved. So do
+  environment-style keys (`${HOME}`) and system properties. Nested placeholders are checked.
+- **No false "Unknown Spring Boot configuration key"** for entries under Map- or List-typed
+  properties (`logging.level.com.example`, `spring.jpa.properties.hibernate.*`). Relaxed
+  binding (`driverClassName` ≙ `driver-class-name`) and indexed keys (`x[0].y`) are also
+  accepted.
+- The Spring Boot run configuration now honours **Shorten command line** and the
+  **alternative JRE** (it launches through the platform's standard application state).
+- Initializr requests honour the **IDE proxy settings**.
+- Clicking the bean gutter icon no longer freezes the UI: the injection search runs under a
+  cancellable progress.
+### Added
+- Qualifier support for `@Named`, custom qualifier annotations, `@Resource` by name, and
+  Spring 6.2 `@Fallback`.
+- Project `@ConfigurationProperties` keys are read from build output
+  (spring-boot-configuration-processor metadata). The legacy `"deprecated": true` flag is
+  honoured.
+### Changed
+- The gutter, the autowiring inspection and the Beans view share one matching rule set, so
+  they always agree.
+- Performance: Spring beans are rescanned only on structural Java/XML changes or classpath
+  changes, no longer on edits in method bodies or unrelated files. Configuration metadata is
+  parsed once per library jar, not on every keystroke.
+- Beans view: each bean is listed under the module that declares it.
+
 ## 0.9.4 — Unreleased
 ### Fixed
 - The dependency checklist really keeps its size now: the 0.9.3 fix sized the list's
