@@ -34,8 +34,7 @@ public final class BeanDependencies {
                                                       @NotNull List<SpringBeanDef> pool) {
         Set<Dependency> edges = new LinkedHashSet<>();
         for (SpringBeanMatching.InjectionSite site : sitesOf(bean)) {
-            String qualifier = SpringBeanMatching.qualifierOf(site.member());
-            for (SpringBeanDef candidate : SpringBeanMatching.candidates(site.type(), qualifier, pool)) {
+            for (SpringBeanDef candidate : SpringBeanMatching.narrow(SpringBeanMatching.candidates(site, pool))) {
                 if (!candidate.equals(bean)) {
                     edges.add(new Dependency(candidate, MarkerSupport.memberLabel(site.member())));
                 }
@@ -73,8 +72,7 @@ public final class BeanDependencies {
                 continue;
             }
             for (SpringBeanMatching.InjectionSite site : SpringBeanMatching.injectionSites(otherClass)) {
-                String qualifier = SpringBeanMatching.qualifierOf(site.member());
-                if (SpringBeanMatching.candidates(site.type(), qualifier, pool).contains(bean)) {
+                if (SpringBeanMatching.narrow(SpringBeanMatching.candidates(site, pool)).contains(bean)) {
                     edges.add(new Dependency(other, MarkerSupport.memberLabel(site.member())));
                 }
             }

@@ -23,8 +23,8 @@ import com.intellij.psi.PsiType;
 import com.intellij.psi.SmartPointerManager;
 import com.intellij.psi.SmartPsiElementPointer;
 import dev.phucngu.intellaspring.spring.SpringAnnotations;
+import dev.phucngu.intellaspring.spring.SpringBeanMatching;
 import dev.phucngu.intellaspring.spring.SpringContextService;
-import dev.phucngu.intellaspring.spring.model.AnnotationValues;
 import dev.phucngu.intellaspring.spring.model.SpringBeanDef;
 import org.jetbrains.annotations.NotNull;
 
@@ -76,13 +76,13 @@ public class SpringAutowiringInspection extends LocalInspectionTool {
         }
         PsiClass injected = classType.resolve();
         if (injected == null || injected.getQualifiedName() == null
-                || dev.phucngu.intellaspring.spring.SpringBeanMatching.MANY_BEAN_TYPES.contains(injected.getQualifiedName())) {
+                || SpringBeanMatching.isManyBeanType(classType)) {
             return;
         }
         String fqn = injected.getQualifiedName();
-        String qualifier = AnnotationValues.stringValue(member.getAnnotation(SpringAnnotations.QUALIFIER), "value");
-        List<SpringBeanDef> candidates = dev.phucngu.intellaspring.spring.SpringBeanMatching.candidates(
-                classType, qualifier, SpringContextService.getInstance(holder.getProject()).allBeans());
+        List<SpringBeanDef> candidates = SpringBeanMatching.candidates(
+                new SpringBeanMatching.InjectionSite(member, type),
+                SpringContextService.getInstance(holder.getProject()).allBeans());
         if (candidates.isEmpty()) {
             if (isRequired(member)) {
                 LocalQuickFix[] fixes = IntroduceBeanFix.eligible(injected)
@@ -94,8 +94,7 @@ public class SpringAutowiringInspection extends LocalInspectionTool {
             }
             return;
         }
-        List<SpringBeanDef> primaries = candidates.stream().filter(SpringBeanDef::primary).toList();
-        List<SpringBeanDef> effective = primaries.isEmpty() ? candidates : primaries;
+        List<SpringBeanDef> effective = SpringBeanMatching.narrow(candidates);
         if (effective.size() > 1) {
             String names = effective.stream()
                     .sorted(Comparator.comparing(SpringBeanDef::displayName))
