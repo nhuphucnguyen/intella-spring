@@ -317,7 +317,9 @@ final class BeansPanel extends SimpleToolWindowPanel {
                 return;
             }
             if (node.getUserObject() instanceof BeanRow bean) {
-                setIcon(bean.origin() == BeanOrigin.XML ? AllIcons.FileTypes.Xml : IntellaSpringIcons.BEAN);
+                setIcon(bean.origin() == BeanOrigin.XML ? AllIcons.FileTypes.Xml
+                        : bean.origin() == BeanOrigin.SPRING_DATA_REPOSITORY ? AllIcons.Nodes.Interface
+                        : IntellaSpringIcons.BEAN);
                 append(bean.name(), SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
                 if (bean.typeShort() != null) {
                     append("  " + bean.typeShort(), SimpleTextAttributes.GRAYED_ATTRIBUTES);

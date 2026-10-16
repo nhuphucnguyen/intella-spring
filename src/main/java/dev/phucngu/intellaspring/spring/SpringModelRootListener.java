@@ -6,8 +6,8 @@ import com.intellij.openapi.roots.ModuleRootListener;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Library/classpath changes decide whether a module is a Spring module at all, so the bean
- * cache has to go when roots move — the PSI modification counter does not cover this.
+ * The bean caches follow roots through {@code ProjectRootModificationTracker}; on a roots
+ * change this only drops the service's dumb-mode fallback and the config metadata cache.
  */
 public class SpringModelRootListener implements ModuleRootListener {
     @Override

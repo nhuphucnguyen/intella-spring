@@ -12,6 +12,8 @@ import com.intellij.psi.PsiModifierListOwner;
 import com.intellij.psi.PsiType;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.searches.AnnotatedElementsSearch;
+import com.intellij.psi.search.searches.ClassInheritorsSearch;
+import dev.phucngu.intellaspring.jpa.JpaRepositories;
 import dev.phucngu.intellaspring.spring.SpringAnnotations;
 import dev.phucngu.intellaspring.spring.SpringNames;
 import org.jetbrains.annotations.NotNull;
@@ -27,7 +29,7 @@ import java.util.Set;
 
 /**
  * Builds the bean list for one module: stereotype classes, {@code @Bean} methods, and
- * {@code <bean>} declarations. Stereotypes are found through the meta-annotation chain, so
+ * {@code <bean>} declarations, plus Spring Data repository interfaces. Stereotypes are found through the meta-annotation chain, so
  * custom annotations meta-annotated with {@code @Component} work, and
  * {@code @SpringBootApplication} (→ {@code @SpringBootConfiguration} → {@code @Configuration}
  * → {@code @Component}) comes out for free. Pure read-side scanner; caching and invalidation
@@ -37,42 +39,98 @@ public final class SpringBeanScanner {
     private SpringBeanScanner() {
     }
 
-    /** True when any base stereotype resolves in the module's scope — i.e. Spring is on the classpath. */
-    public static boolean hasSpringOnClasspath(@NotNull Module module) {
-        return !stereotypeAnnotations(module.getProject(), searchScope(module)).isEmpty();
+    /**
+     * The meta-annotation closure of the stereotypes, as classes (to search with) and FQNs
+     * (to match a class's direct annotations). Computed once per rebuild by the caller and
+     * handed to the scan methods, so the BFS never repeats per module.
+     */
+    public record Stereotypes(@NotNull Set<PsiClass> annotations, @NotNull Set<String> fqns) {
+        public static final Stereotypes EMPTY = new Stereotypes(Set.of(), Set.of());
+
+        public boolean isEmpty() {
+            return annotations.isEmpty();
+        }
+
+        static @NotNull Stereotypes of(@NotNull Set<PsiClass> annotations) {
+            Set<String> fqns = new HashSet<>();
+            for (PsiClass annotation : annotations) {
+                String fqn = annotation.getQualifiedName();
+                if (fqn != null) {
+                    fqns.add(fqn);
+                }
+            }
+            return new Stereotypes(annotations, fqns);
+        }
     }
 
-    public static @NotNull List<SpringBeanDef> scan(@NotNull Module module) {
-        if (!hasSpringOnClasspath(module)) {
-            return List.of();
+    /** True when any base stereotype resolves in the module's scope — i.e. Spring is on the classpath. */
+    public static boolean hasSpringOnClasspath(@NotNull Module module) {
+        JavaPsiFacade psi = JavaPsiFacade.getInstance(module.getProject());
+        GlobalSearchScope scope = GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module, false);
+        for (String fqn : SpringAnnotations.BASE_STEREOTYPES) {
+            if (psi.findClass(fqn, scope) != null) {
+                return true;
+            }
         }
+        return false;
+    }
+
+    /** Everything outside project content: the jars and library sources, scanned once per project. */
+    public static @NotNull GlobalSearchScope libraryScope(@NotNull Project project) {
+        return GlobalSearchScope.allScope(project)
+                .intersectWith(GlobalSearchScope.notScope(GlobalSearchScope.projectScope(project)));
+    }
+
+    /** Stereotype closure over libraries only — changes with the classpath, not with edits. */
+    public static @NotNull Stereotypes libraryStereotypes(@NotNull Project project) {
+        GlobalSearchScope scope = libraryScope(project);
+        return Stereotypes.of(closure(project, baseStereotypes(project, scope), scope));
+    }
+
+    /** Library closure extended with annotations the project itself meta-annotates. */
+    public static @NotNull Stereotypes projectStereotypes(@NotNull Project project, @NotNull Stereotypes library) {
+        Set<PsiClass> seeds = new LinkedHashSet<>(library.annotations());
+        seeds.addAll(baseStereotypes(project, GlobalSearchScope.allScope(project)));
+        return Stereotypes.of(closure(project, seeds, GlobalSearchScope.projectScope(project)));
+    }
+
+    /** Beans declared in the module's own sources only; dependencies compose on top of this. */
+    public static @NotNull List<SpringBeanDef> declaredBeans(@NotNull Module module, @NotNull Stereotypes stereotypes) {
         Project project = module.getProject();
-        GlobalSearchScope scope = searchScope(module);
+        GlobalSearchScope scope = GlobalSearchScope.moduleScope(module);
         List<SpringBeanDef> beans = new ArrayList<>();
-        beans.addAll(stereotypeBeans(project, scope));
+        beans.addAll(stereotypeBeans(scope, stereotypes));
         beans.addAll(beanMethodBeans(project, scope));
+        beans.addAll(repositoryBeans(module, scope));
         beans.addAll(XmlBeanScanner.scan(module));
         return beans;
     }
 
-    private static @NotNull GlobalSearchScope searchScope(@NotNull Module module) {
-        // Module sources plus dependencies and libraries: sources cover fixture tests,
-        // libraries are where real projects keep the Spring annotations.
-        return GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module, false);
+    /** Beans declared by classes in libraries (jars / library sources). */
+    public static @NotNull List<SpringBeanDef> libraryBeans(@NotNull Project project, @NotNull Stereotypes library) {
+        GlobalSearchScope scope = libraryScope(project);
+        List<SpringBeanDef> beans = new ArrayList<>(stereotypeBeans(scope, library));
+        beans.addAll(beanMethodBeans(project, scope));
+        return beans;
     }
 
-    /** Base stereotype classes plus every annotation transitively meta-annotated with one. */
-    private static @NotNull Set<PsiClass> stereotypeAnnotations(@NotNull Project project,
-                                                                @NotNull GlobalSearchScope scope) {
+    private static @NotNull Set<PsiClass> baseStereotypes(@NotNull Project project, @NotNull GlobalSearchScope scope) {
         JavaPsiFacade psi = JavaPsiFacade.getInstance(project);
         Set<PsiClass> found = new LinkedHashSet<>();
-        Deque<PsiClass> queue = new ArrayDeque<>();
         for (String fqn : SpringAnnotations.BASE_STEREOTYPES) {
             PsiClass annotation = psi.findClass(fqn, scope);
-            if (annotation != null && found.add(annotation)) {
-                queue.add(annotation);
+            if (annotation != null) {
+                found.add(annotation);
             }
         }
+        return found;
+    }
+
+    /** Seeds plus every annotation in {@code scope} transitively meta-annotated with one. */
+    private static @NotNull Set<PsiClass> closure(@NotNull Project project, @NotNull Set<PsiClass> seeds,
+                                                  @NotNull GlobalSearchScope scope) {
+        Set<PsiClass> found = new LinkedHashSet<>(seeds);
+        Deque<PsiClass> queue = new ArrayDeque<>(seeds);
         while (!queue.isEmpty()) {
             PsiClass annotation = queue.poll();
             for (PsiClass candidate : AnnotatedElementsSearch.searchPsiClasses(annotation, scope)) {
@@ -84,18 +142,10 @@ public final class SpringBeanScanner {
         return found;
     }
 
-    private static @NotNull List<SpringBeanDef> stereotypeBeans(@NotNull Project project,
-                                                                @NotNull GlobalSearchScope scope) {
-        Set<PsiClass> stereotypeAnnotations = stereotypeAnnotations(project, scope);
-        Set<String> stereotypeFqns = new HashSet<>();
-        for (PsiClass annotation : stereotypeAnnotations) {
-            String fqn = annotation.getQualifiedName();
-            if (fqn != null) {
-                stereotypeFqns.add(fqn);
-            }
-        }
+    private static @NotNull List<SpringBeanDef> stereotypeBeans(@NotNull GlobalSearchScope scope,
+                                                                @NotNull Stereotypes stereotypes) {
         Set<PsiClass> beanClasses = new LinkedHashSet<>();
-        for (PsiClass annotation : stereotypeAnnotations) {
+        for (PsiClass annotation : stereotypes.annotations()) {
             for (PsiClass beanClass : AnnotatedElementsSearch.searchPsiClasses(annotation, scope)) {
                 if (beanClass.isValid() && !beanClass.isAnnotationType()) {
                     beanClasses.add(beanClass);
@@ -104,7 +154,41 @@ public final class SpringBeanScanner {
         }
         List<SpringBeanDef> beans = new ArrayList<>();
         for (PsiClass beanClass : beanClasses) {
-            beans.add(classBean(beanClass, stereotypeFqns));
+            beans.add(classBean(beanClass, stereotypes.fqns()));
+        }
+        return beans;
+    }
+
+    /** Spring Data repository interfaces in {@code scope}: proxied by Spring Data, injectable like any bean. */
+    private static @NotNull List<SpringBeanDef> repositoryBeans(@NotNull Module module, @NotNull GlobalSearchScope scope) {
+        Project project = module.getProject();
+        PsiClass repository = JavaPsiFacade.getInstance(project).findClass(JpaRepositories.REPOSITORY_FQN,
+                GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module, false));
+        if (repository == null) {
+            return List.of();
+        }
+        List<SpringBeanDef> beans = new ArrayList<>();
+        for (PsiClass candidate : ClassInheritorsSearch.search(repository, scope, true).findAll()) {
+            if (!candidate.isValid() || !JpaRepositories.isRepositoryBean(candidate)) {
+                continue;
+            }
+            String simpleName = candidate.getName();
+            if (simpleName == null) {
+                continue;
+            }
+            beans.add(new SpringBeanDef(
+                    SpringNames.defaultBeanName(simpleName),
+                    List.of(),
+                    JavaPsiFacade.getElementFactory(project).createType(candidate),
+                    candidate.getQualifiedName(),
+                    BeanOrigin.SPRING_DATA_REPOSITORY,
+                    null,
+                    qualifierValues(candidate.getAnnotation(SpringAnnotations.QUALIFIER)),
+                    SpringBeanDef.SINGLETON,
+                    List.of(),
+                    candidate.getAnnotation(SpringAnnotations.PRIMARY) != null,
+                    candidate.getAnnotation(SpringAnnotations.LAZY) != null,
+                    sourceElement(candidate)));
         }
         return beans;
     }
@@ -146,7 +230,7 @@ public final class SpringBeanScanner {
     private static @NotNull List<SpringBeanDef> beanMethodBeans(@NotNull Project project,
                                                                 @NotNull GlobalSearchScope scope) {
         JavaPsiFacade psi = JavaPsiFacade.getInstance(project);
-        PsiClass beanAnnotation = psi.findClass(SpringAnnotations.BEAN, scope);
+        PsiClass beanAnnotation = psi.findClass(SpringAnnotations.BEAN, GlobalSearchScope.allScope(project));
         if (beanAnnotation == null) {
             return List.of();
         }

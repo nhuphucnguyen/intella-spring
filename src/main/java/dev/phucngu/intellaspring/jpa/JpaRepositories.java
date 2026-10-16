@@ -23,11 +23,18 @@ public final class JpaRepositories {
 
     public static final String REPOSITORY_FQN = "org.springframework.data.repository.Repository";
 
+    public static final String NO_REPOSITORY_BEAN_FQN = "org.springframework.data.repository.NoRepositoryBean";
+
     private JpaRepositories() {
     }
 
     public static boolean isRepositoryInterface(@NotNull PsiClass candidate) {
         return !candidate.isAnnotationType() && candidate.isInterface() && repositoryType(candidate) != null;
+    }
+
+    /** A repository interface Spring Data instantiates: not opted out through {@code @NoRepositoryBean}. */
+    public static boolean isRepositoryBean(@NotNull PsiClass candidate) {
+        return isRepositoryInterface(candidate) && !candidate.hasAnnotation(NO_REPOSITORY_BEAN_FQN);
     }
 
     /** The substituted {@code Repository<Domain, Id>} supertype, or null when not a repository. */
