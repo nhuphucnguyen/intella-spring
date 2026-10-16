@@ -2,6 +2,9 @@ package dev.phucngu.intellaspring.config;
 
 import com.intellij.lang.properties.psi.PropertiesFile;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ProjectRootModificationTracker;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.FilenameIndex;
@@ -13,7 +16,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.yaml.psi.YAMLFile;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -29,19 +34,31 @@ public final class ProjectConfigKeys {
     public static boolean isDefined(@NotNull Project project, @NotNull String key) {
         String canonical = ConfigKeyIndex.canonical(key);
         PsiManager psiManager = PsiManager.getInstance(project);
-        GlobalSearchScope scope = GlobalSearchScope.projectScope(project);
-        for (String extension : new String[]{"properties", "yml", "yaml"}) {
-            for (var file : FilenameIndex.getAllFilesByExt(project, extension, scope)) {
-                if (!SpringPropertiesCompletionContributor.isApplicationFile(file.getName())) {
-                    continue;
-                }
-                PsiFile psi = psiManager.findFile(file);
-                if (psi != null && keysOf(psi).contains(canonical)) {
-                    return true;
-                }
+        for (VirtualFile file : applicationFiles(project)) {
+            PsiFile psi = file.isValid() ? psiManager.findFile(file) : null;
+            if (psi != null && keysOf(psi).contains(canonical)) {
+                return true;
             }
         }
         return false;
+    }
+
+    /** application*.properties/yml/yaml files; re-scanned only when files are added/removed/moved. */
+    private static @NotNull List<VirtualFile> applicationFiles(@NotNull Project project) {
+        return CachedValuesManager.getManager(project).getCachedValue(project, () -> {
+            List<VirtualFile> files = new ArrayList<>();
+            GlobalSearchScope scope = GlobalSearchScope.projectScope(project);
+            for (String extension : new String[]{"properties", "yml", "yaml"}) {
+                for (VirtualFile file : FilenameIndex.getAllFilesByExt(project, extension, scope)) {
+                    if (SpringPropertiesCompletionContributor.isApplicationFile(file.getName())) {
+                        files.add(file);
+                    }
+                }
+            }
+            return CachedValueProvider.Result.create(List.copyOf(files),
+                    VirtualFileManager.VFS_STRUCTURE_MODIFICATIONS,
+                    ProjectRootModificationTracker.getInstance(project));
+        });
     }
 
     private static @NotNull Set<String> keysOf(@NotNull PsiFile file) {

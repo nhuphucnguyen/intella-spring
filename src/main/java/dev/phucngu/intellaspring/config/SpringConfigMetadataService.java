@@ -11,7 +11,9 @@ import com.intellij.openapi.roots.LibraryOrderEntry;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.roots.OrderEntry;
 import com.intellij.openapi.roots.OrderRootType;
+import com.intellij.openapi.roots.ProjectRootModificationTracker;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,7 +46,9 @@ public final class SpringConfigMetadataService {
     private final Project project;
     private final Map<VirtualFile, LibraryEntry> libraries = new ConcurrentHashMap<>();
     private volatile Snapshot snapshot;
-    private volatile int generation;
+    /** Structure stamp at which the snapshot's module-local file list was last confirmed. */
+    private volatile long verifiedStructure;
+    private final AtomicInteger generation = new AtomicInteger();
 
     private record LibraryEntry(long stamp, List<ConfigKey> keys) {
     }
@@ -78,7 +82,7 @@ public final class SpringConfigMetadataService {
     }
 
     public void invalidate() {
-        generation++;
+        generation.incrementAndGet();
         snapshot = null;
     }
 
@@ -92,18 +96,33 @@ public final class SpringConfigMetadataService {
         return fresh;
     }
 
+    /** Moves whenever files may have been created/deleted/moved or module roots changed. */
+    private long structureStamp() {
+        return VirtualFileManager.getInstance().getStructureModificationCount() * 31
+                + ProjectRootModificationTracker.getInstance(project).getModificationCount();
+    }
+
     private boolean isCurrent(@NotNull Snapshot snapshot) {
-        if (snapshot.generation() != generation) {
+        if (snapshot.generation() != generation.get()) {
             return false;
         }
-        List<VirtualFile> local = moduleLocalFiles();
         List<Watched> watched = snapshot.watched();
-        if (local.size() != watched.size()) {
-            return false;
+        long structure = structureStamp();
+        if (verifiedStructure != structure) {
+            // the file layout may have changed: re-resolve the candidate paths (the expensive part)
+            List<VirtualFile> local = moduleLocalFiles();
+            if (local.size() != watched.size()) {
+                return false;
+            }
+            for (int i = 0; i < local.size(); i++) {
+                if (!local.get(i).equals(watched.get(i).file())) {
+                    return false;
+                }
+            }
+            verifiedStructure = structure;
         }
-        for (int i = 0; i < local.size(); i++) {
-            Watched entry = watched.get(i);
-            if (!entry.file().equals(local.get(i)) || stamp(entry.file()) != entry.stamp()) {
+        for (Watched entry : watched) {
+            if (!entry.file().isValid() || stamp(entry.file()) != entry.stamp()) {
                 return false;
             }
         }
@@ -111,7 +130,8 @@ public final class SpringConfigMetadataService {
     }
 
     private @NotNull Snapshot collect() {
-        int generationAtStart = generation;
+        int generationAtStart = generation.get();
+        verifiedStructure = structureStamp();
         Map<String, ConfigKey> merged = new LinkedHashMap<>();
         List<Watched> watched = new ArrayList<>();
         for (VirtualFile file : moduleLocalFiles()) {

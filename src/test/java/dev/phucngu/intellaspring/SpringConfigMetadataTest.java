@@ -141,6 +141,24 @@ public class SpringConfigMetadataTest extends BasePlatformTestCase {
                         """));
     }
 
+    public void testSnapshotReusedWithoutVfsChangeAndRefreshedOnMetadataEdit() {
+        var service = SpringConfigMetadataService.getInstance(getProject());
+        var index = service.index();
+        int parsed = SpringConfigMetadataService.parseCount();
+        for (int i = 0; i < 100; i++) {
+            assertSame(index, service.index());
+        }
+        assertEquals(parsed, SpringConfigMetadataService.parseCount());
+
+        var file = myFixture.findFileInTempDir("META-INF/spring-configuration-metadata.json");
+        var document = com.intellij.openapi.fileEditor.FileDocumentManager.getInstance().getDocument(file);
+        com.intellij.openapi.command.WriteCommandAction.runWriteCommandAction(getProject(), () ->
+                document.setText("{\"properties\": [{\"name\": \"fresh.key\", \"type\": \"java.lang.String\"}]}"));
+        var refreshed = service.index();
+        assertNotSame(index, refreshed);
+        assertNotNull(refreshed.find("fresh.key"));
+    }
+
     public void testLegacyDeprecatedFlag() {
         List<ConfigKey> keys = SpringConfigMetadata.parse(
                 "{\"properties\": [{\"name\": \"a.b\", \"deprecated\": true}, {\"name\": \"a.c\"}]}");
